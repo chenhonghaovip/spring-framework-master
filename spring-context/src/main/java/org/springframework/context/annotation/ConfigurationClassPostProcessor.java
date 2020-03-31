@@ -266,7 +266,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 		for (String beanName : candidateNames) {
 			BeanDefinition beanDef = registry.getBeanDefinition(beanName);
-			// 如果你的beanDef现在就已经确定了是full或者lite，说明你肯定已经被解析过了，，所以再来的话输出个debug即可（其实我觉得输出warn也行~~~）
+			// 如果你的beanDef现在就已经确定了是full或者lite，说明你肯定已经被解析过了
 			if (beanDef.getAttribute(ConfigurationClassUtils.CONFIGURATION_CLASS_ATTRIBUTE) != null) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Bean definition has already been processed as a configuration class: " + beanDef);
@@ -316,6 +316,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 
 		// Parse each @Configuration class
 		// 这是重点：真正解析@Configuration类的，其实是ConfigurationClassParser 这个解析器来做的
+		// 初始化一个ConfigurationClassParser解析器，可以解析@Congiguration配置类
 		// parser 后面用于解析每一个配置类~~~~
 		ConfigurationClassParser parser = new ConfigurationClassParser(
 				this.metadataReaderFactory, this.problemReporter, this.environment,
@@ -334,24 +335,37 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			configClasses.removeAll(alreadyParsed);
 
 			// Read the model and create bean definitions based on its content
+			// 读取模型并根据其内容创建bean定义
 			if (this.reader == null) {
 				this.reader = new ConfigurationClassBeanDefinitionReader(
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
+			// 加载bean定义信息，主要实现将@Configuration @Import @ImportResource @ImportRegistrar注册为bean
 			this.reader.loadBeanDefinitions(configClasses);
+			// 将configClasses加入到已解析alreadyParsed中
 			alreadyParsed.addAll(configClasses);
-
+			// 清空已处理的配置类
 			candidates.clear();
+
+			// 再次获取容器中bean定义数量  如果大于 之前获取的bean定义数量，则说明有新的bean注册到容器中，需要再次解析
 			if (registry.getBeanDefinitionCount() > candidateNames.length) {
+				// 容器中新的所有已注册的bean（包括老的）
 				String[] newCandidateNames = registry.getBeanDefinitionNames();
+
+				// 容器中老的已注册的bean（已经解析了）
 				Set<String> oldCandidateNames = new HashSet<>(Arrays.asList(candidateNames));
+
+				//用来存储已经解析的类
 				Set<String> alreadyParsedClasses = new HashSet<>();
+
+				//循环遍历把已解析的类放到alreadyParsedClasses中
 				for (ConfigurationClass configurationClass : alreadyParsed) {
 					alreadyParsedClasses.add(configurationClass.getMetadata().getClassName());
 				}
 				for (String candidateName : newCandidateNames) {
 					if (!oldCandidateNames.contains(candidateName)) {
+						// 容器中获取bean定义
 						BeanDefinition bd = registry.getBeanDefinition(candidateName);
 						if (ConfigurationClassUtils.checkConfigurationClassCandidate(bd, this.metadataReaderFactory) &&
 								!alreadyParsedClasses.contains(bd.getBeanClassName())) {

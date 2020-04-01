@@ -234,16 +234,20 @@ class ConfigurationClassParser {
 		// 递归解析
 		SourceClass sourceClass = asSourceClass(configClass);
 		do {
-			//解析注解信息
+			//解析注解信息，解析各种注解， 扫描指定包下的类，并注册进DefaultListableBeanFactory
 			sourceClass = doProcessConfigurationClass(configClass, sourceClass);
 		}
 		while (sourceClass != null);
 
 		// 添加到ConfigurationClassParser的configurationClasses中
+		// 一个map,用来存放处理完扫描的bd，因为在扫描的过程中会发现bd有一些其他的注解需要处理
+		// 发现后会给bd设置相应的属性值，再交由ConfigurationClassPostProcessor进行统一处理
 		this.configurationClasses.put(configClass, configClass);
 	}
 
 	/**
+	 * 真正用于解析各种自定义bean
+	 *
 	 * Apply processing and build a complete {@link ConfigurationClass} by reading the
 	 * annotations, members and methods from the source class. This method can be called
 	 * multiple times as relevant sources are discovered.
@@ -261,7 +265,7 @@ class ConfigurationClassParser {
 		}
 
 		// Process any @PropertySource annotations
-		// 处理任何@PropertySource注解
+		// 处理任何@PropertySource注解，处理资源文件
 		for (AnnotationAttributes propertySource : AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), PropertySources.class,
 				org.springframework.context.annotation.PropertySource.class)) {
@@ -282,6 +286,8 @@ class ConfigurationClassParser {
 				!this.conditionEvaluator.shouldSkip(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
 			for (AnnotationAttributes componentScan : componentScans) {
 				// The config class is annotated with @ComponentScan -> perform the scan immediately
+				// ComponentScanAnnotationParser是Spring的一个内部工具，它会基于某个类上的@ComponentScan注解属性分析指定包(package)以获取其中的bean定义
+				// 扫描普通类，带有@Component/@Repository/@Controller/@Service等四个元注解的类，扫描完后注解注册
 				Set<BeanDefinitionHolder> scannedBeanDefinitions =
 						this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
 				// Check the set of scanned definitions for any further config classes and parse recursively if needed

@@ -293,16 +293,17 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		});
 
 		// Detect any custom bean name generation strategy supplied through the enclosing application context
-		// 此处registry是DefaultListableBeanFactory 这里会进去
+		// 此处registry是DefaultListableBeanFactory是SingletonBeanRegistry的子类 这里会进去
 		// 尝试着给Bean扫描方式，以及import方法的BeanNameGenerator赋值
 		// (若我们都没指定，那就是默认的AnnotationBeanNameGenerator：扫描为首字母小写，import为全类名)
 		SingletonBeanRegistry sbr = null;
 		if (registry instanceof SingletonBeanRegistry) {
 			sbr = (SingletonBeanRegistry) registry;
 			if (!this.localBeanNameGeneratorSet) {
+				// 判断是否有自定义的beanName生成器
 				BeanNameGenerator generator = (BeanNameGenerator) sbr.getSingleton(
 						AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR);
-				//此时容器中没有此bean
+				//此时容器中没有自定义的beanName生成器时，获取spring默认的beanName生成器，这里为空
 				if (generator != null) {
 					this.componentScanBeanNameGenerator = generator;
 					this.importBeanNameGenerator = generator;
@@ -326,7 +327,10 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		// 装载已经处理过的配置类，最大长度为：configCandidates.size()
 		Set<ConfigurationClass> alreadyParsed = new HashSet<>(configCandidates.size());
 		do {
-			// 核心方法
+			/**
+			 * 核心方法解析带有@Controller/@Import/@ImportResource/@ComponentScan/@ComponentScans/@Bean的beanDefinition
+			 * 开始扫描/注册包下的类
+			 */
 			parser.parse(candidates);
 			// 校验 配置类不能使final的，因为需要使用CGLIB生成代理对象，见postProcessBeanFactory方法
 			parser.validate();

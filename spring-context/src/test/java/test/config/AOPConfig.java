@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import test.aspect.TestAspect;
 import test.dto.Fox;
+import test.post.UserBeanPostProcessor;
 
 /**
  * @author chenhonghao
@@ -23,4 +24,10 @@ public class AOPConfig {
     public Fox fox(){
         return new Fox();
     }
+
+	@Bean
+	public UserBeanPostProcessor userBeanPostProcessor(){
+		return new UserBeanPostProcessor();
+	}
+
 }

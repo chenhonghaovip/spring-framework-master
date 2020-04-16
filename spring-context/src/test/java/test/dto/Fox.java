@@ -1,4 +1,4 @@
-package test;
+package test.dto;
 
 /**
  * @author chenhonghao

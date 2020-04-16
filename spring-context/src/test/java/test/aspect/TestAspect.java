@@ -1,4 +1,4 @@
-package test;
+package test.aspect;
 
 import org.aspectj.lang.annotation.*;
 
@@ -11,7 +11,7 @@ import org.aspectj.lang.annotation.*;
 @Aspect
 public class TestAspect {
 
-    @Pointcut("execution(* com.honghao.cloud.userapi.spring.bean..*(..))")
+    @Pointcut("execution(* test.dto.Fox.*(..))")
     public void point(){
 
     }

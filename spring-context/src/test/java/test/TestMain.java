@@ -2,6 +2,8 @@ package test;
 
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import test.config.AOPConfig;
+import test.dto.Fox;
 
 /**
  * @author chenhonghao

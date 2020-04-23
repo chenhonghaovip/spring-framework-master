@@ -20,13 +20,13 @@ public class UserBeanPostProcessor implements BeanPostProcessor, Ordered {
         if (bean instanceof Fox) {
 //            ((Fox) bean).setName("陈宏浩");
         }
-		System.out.println("postProcessBeforeInitialization-------"+bean.getClass().getSimpleName());
+//		System.out.println("postProcessBeforeInitialization-------"+bean.getClass().getSimpleName());
         return bean;
     }
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-		System.out.println("postProcessAfterInitialization++++++++"+bean.getClass().getSimpleName());
+//		System.out.println("postProcessAfterInitialization++++++++"+bean.getClass().getSimpleName());
         return bean;
     }
 }

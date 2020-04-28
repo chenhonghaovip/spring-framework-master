@@ -144,7 +144,7 @@ class ConfigurationClassParser {
 	 * @param configCandidates configCandidates
 	 */
 	public void parse(Set<BeanDefinitionHolder> configCandidates) {
-		//循环遍历需要处理的配置类
+		// 循环遍历需要处理的配置类
 		for (BeanDefinitionHolder holder : configCandidates) {
 			BeanDefinition bd = holder.getBeanDefinition();
 			try {

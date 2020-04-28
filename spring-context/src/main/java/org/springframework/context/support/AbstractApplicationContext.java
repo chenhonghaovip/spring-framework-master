@@ -496,7 +496,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			prepareRefresh();
 
 			// Tell the subclass to refresh the internal bean factory.
-			// 容器刷新前的准备，设置上下文状态，获取属性，验证必要的属性等
+			// 该方法获取新的beanFactory。该方法很简单，刷新 BeanFactory 和获取 getBeanFactory。
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
@@ -508,7 +508,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				 * @see beanFactoryPostProcessors # postProcessBeanFactory()
 				 */
 				// Allows post-processing of the bean factory in context subclasses.
-				// 模板方法，允许在子类中对beanFactory进行后置处理。
+				// 模板方法，允许在子类中对beanFactory进行后置处理。beanFactory准备工作完成后的后置处理工作
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.
@@ -680,6 +680,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 		// BeanFactory interface not registered as resolvable type in a plain factory.
 		// MessageSource registered (and found for autowiring) as a bean.
+		// 注册可以解析的自动装配，我们可以在任何组件中自动注入BeanFactory、ResourceLoader、ApplicationEventPublisher、ApplicationContext
 		beanFactory.registerResolvableDependency(BeanFactory.class, beanFactory);
 		beanFactory.registerResolvableDependency(ResourceLoader.class, this);
 		beanFactory.registerResolvableDependency(ApplicationEventPublisher.class, this);

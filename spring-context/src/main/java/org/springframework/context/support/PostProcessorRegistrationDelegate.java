@@ -41,7 +41,11 @@ final class PostProcessorRegistrationDelegate {
 	private PostProcessorRegistrationDelegate() {
 	}
 
-
+	/**
+	 * 获取
+	 * @param beanFactory ioc容器
+	 * @param beanFactoryPostProcessors 自己set进去的BeanFactoryPostProcessor
+	 */
 	public static void invokeBeanFactoryPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, List<BeanFactoryPostProcessor> beanFactoryPostProcessors) {
 
@@ -73,10 +77,13 @@ final class PostProcessorRegistrationDelegate {
 			// 从此处可以看出，我们手动set进去的，最最最最优先执行的
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				//如果类型为BeanDefinitionRegistryPostProcessor，添加到registryProcessors，否则添加到regularPostProcessors
+				// BeanDefinitionRegistryPostProcessor是BeanFactoryPostProcessor的子类，在所有bean定义信息将要被加载，但是bean的实例还未被创建时执行
+				//（优先于BeanFactoryPostProcessor执行）
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor =
 							(BeanDefinitionRegistryPostProcessor) postProcessor;
-					// 这里执行post方法，然后把它缓冲起来了，放在了registryProcessors里
+					// 这里执行postProcessBeanDefinitionRegistry方法，然后把它缓冲起来了，
+					// 放在了registryProcessors里，准备之后继续执行
 					registryProcessor.postProcessBeanDefinitionRegistry(registry);
 					registryProcessors.add(registryProcessor);
 				}

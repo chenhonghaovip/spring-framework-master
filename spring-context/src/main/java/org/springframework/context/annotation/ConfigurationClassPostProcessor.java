@@ -345,7 +345,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 						registry, this.sourceExtractor, this.resourceLoader, this.environment,
 						this.importBeanNameGenerator, parser.getImportRegistry());
 			}
-			// 加载bean定义信息，主要实现将@Configuration @Import @ImportResource @ImportRegistrar注册为bean
+			// 加载bean定义信息，主要实现将@Configuration @Import @ImportResource @ImportRegistrar转化为 BeanDefinition
 			this.reader.loadBeanDefinitions(configClasses);
 			// 将configClasses加入到已解析alreadyParsed中
 			alreadyParsed.addAll(configClasses);
@@ -371,6 +371,8 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 					if (!oldCandidateNames.contains(candidateName)) {
 						// 容器中获取bean定义
 						BeanDefinition bd = registry.getBeanDefinition(candidateName);
+						// 如果该BeanDefinition未曾被解析过，且
+						// TODO: 2020/4/28
 						if (ConfigurationClassUtils.checkConfigurationClassCandidate(bd, this.metadataReaderFactory) &&
 								!alreadyParsedClasses.contains(bd.getBeanClassName())) {
 							candidates.add(new BeanDefinitionHolder(bd, candidateName));

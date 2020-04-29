@@ -82,9 +82,11 @@ public class AnnotatedBeanDefinitionReader {
 	public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry, Environment environment) {
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 		Assert.notNull(environment, "Environment must not be null");
+		// 将AnnotationConfigApplicationContext注册为管理BeanDefinition的BeanDefinitionRegistry
 		this.registry = registry;
 		this.conditionEvaluator = new ConditionEvaluator(registry, environment, null);
-		//在此向ioc容器中注冊BeanDefinition定义
+		// 在此向ioc容器中注冊BeanDefinition定义,
+		// 会把一些自动注解处理器加入到AnnotationConfigApplicationContext下的BeanFactory的BeanDefinitions中
 		AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
 	}
 

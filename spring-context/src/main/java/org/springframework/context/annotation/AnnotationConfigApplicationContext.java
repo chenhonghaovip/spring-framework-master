@@ -62,8 +62,11 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * through {@link #register} calls and then manually {@linkplain #refresh refreshed}.
 	 */
 	public AnnotationConfigApplicationContext() {
-		//在此向ioc容器中注冊BeanDefinition，AnnotationConfigApplicationContext实现了BeanDefinitionRegistry接口
+		// 在此向ioc容器中预先注冊一些BeanPostProcessor和BeanFactoryPostProcessor类型的BeanDefinition，
+		// AnnotationConfigApplicationContext实现了BeanDefinitionRegistry接口
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+		// 将指定包下的类通过一定规则过滤后 将Class 信息包装成 BeanDefinition 的形式注册到IOC容器中。
+		// ClassPathBeanDefinitionScanner是一个扫描指定类路径中注解Bean定义的扫描器，在它初始化的时候，会初始化一些需要被扫描的注解，初始化用于加载包下的资源的Loader
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 

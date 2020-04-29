@@ -344,16 +344,18 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		if (Boolean.FALSE.equals(this.advisedBeans.get(cacheKey))) {
 			return bean;
 		}
+		// 判断当前bean是否是基础的Advice、Pointcut、Advisor、AopInfrastructureBean 或者是 当前bean是否是Aspect切面
+		// 判断当前bean是否需要被跳过（永远返回false,进行跳过）
 		if (isInfrastructureClass(bean.getClass()) || shouldSkip(bean.getClass(), beanName)) {
 			this.advisedBeans.put(cacheKey, Boolean.FALSE);
 			return bean;
 		}
 
 		// Create proxy if we have advice.
-		// 获取当前bean的所有增强器（也就是在切面中定义的通知方法）
+		// 获取当前bean的所有可用的增强器（也就是在切面中定义的通知方法）
 		Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
 		if (specificInterceptors != DO_NOT_PROXY) {
-			// 保存当前bean到缓存中，表示该bean已经被增强
+			// 保存当前bean到缓存中，表示该bean已经被增强，value为true,表示该bean需要被代理
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
 			// 创建代理对象
 			Object proxy = createProxy(

@@ -327,17 +327,19 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		final TransactionAttribute txAttr = (tas != null ? tas.getTransactionAttribute(method, targetClass) : null);
 		// 获取平台事务管理器
 		final PlatformTransactionManager tm = determineTransactionManager(txAttr);
+		// 切点标识
 		final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
 
 		if (txAttr == null || !(tm instanceof CallbackPreferringPlatformTransactionManager)) {
 			// Standard transaction demarcation with getTransaction and commit/rollback calls.
+			// 这里是根据事务的传播行为属性去判断是否创建一个事务
 			TransactionInfo txInfo = createTransactionIfNecessary(tm, txAttr, joinpointIdentification);
 
 			Object retVal;
 			try {
 				// This is an around advice: Invoke the next interceptor in the chain.
 				// This will normally result in a target object being invoked.
-				// 方法执行
+				// around增强，这里是执行的回调的目标方法
 				retVal = invocation.proceedWithInvocation();
 			}
 			catch (Throwable ex) {
@@ -347,6 +349,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				throw ex;
 			}
 			finally {
+				// 清理信息
 				cleanupTransactionInfo(txInfo);
 			}
 

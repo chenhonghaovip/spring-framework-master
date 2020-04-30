@@ -102,6 +102,7 @@ abstract class ConfigurationClassUtils {
 		else if (beanDef instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) beanDef).hasBeanClass()) {
 			// Check already loaded Class if present...
 			// since we possibly can't even load the class file for this Class.
+			// 判断是否spring默认的BeanDefinition
 			Class<?> beanClass = ((AbstractBeanDefinition) beanDef).getBeanClass();
 			if (BeanFactoryPostProcessor.class.isAssignableFrom(beanClass) ||
 					BeanPostProcessor.class.isAssignableFrom(beanClass) ||
@@ -135,7 +136,8 @@ abstract class ConfigurationClassUtils {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
 		else if (config != null || isConfigurationCandidate(metadata)) {
-			// 如果存在以上注解,则为当前BeanDefinition设置configurationClass属性为lite
+			// 如果bd中含有注解@Component、@ComponentScan、@Import、@ImportResource、Bean,则为当前BeanDefinition设置configurationClass属性为lite
+			// 表示spring认为他是一个部分注解类
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
 		else {

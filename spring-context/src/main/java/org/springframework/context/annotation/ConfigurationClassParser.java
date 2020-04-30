@@ -150,9 +150,12 @@ class ConfigurationClassParser {
 			try {
 				// 根据BeanDefinition实例判断调用哪个，其实最后还是调用
 				// 核心方法：processConfigurationClass(ConfigurationClass configClass)
+
+				// 通过注解注入的bd，实现了AnnotatedBeanDefinition
 				if (bd instanceof AnnotatedBeanDefinition) {
 					parse(((AnnotatedBeanDefinition) bd).getMetadata(), holder.getBeanName());
 				}
+				// spring内部的bd是RootBeanDefinition，实现了AbstractBeanDefinition
 				else if (bd instanceof AbstractBeanDefinition && ((AbstractBeanDefinition) bd).hasBeanClass()) {
 					parse(((AbstractBeanDefinition) bd).getBeanClass(), holder.getBeanName());
 				}
@@ -205,18 +208,19 @@ class ConfigurationClassParser {
 
 
 	protected void processConfigurationClass(ConfigurationClass configClass) throws IOException {
-		// 检查当前解析的配置bean是否包含Conditional注解，如果不包含则不需要跳过
+		// 检查当前解析的配置bean是否包含@Conditional注解，如果不包含则不需要跳过
 		// 如果包含了则进行match方法得到匹配结果，如果是符合的并且设置的配置解析策略是解析阶段不需要调过
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
 		}
 
 		// 在这里处理Configuration重复import
-		// 如果同一个配置类被处理两次，两次都属于被import的则合并导入类，返回。如果配置类不是被导入的，则移除旧使用新的配置类
+		// configClass为对象，在ConfigurationClass类中重写equals()和hashCode()方法，最终通过配置类全路径名称作为key来获取map中的值，判断LinkedHashMap是否存在该配置类
 		ConfigurationClass existingClass = this.configurationClasses.get(configClass);
 		if (existingClass != null) {
 			if (configClass.isImported()) {
 				if (existingClass.isImported()) {
+					// 如果同一个配置类被处理两次，两次都属于被import的则合并导入类，返回。如果配置类不是被导入的，则移除旧使用新的配置类
 					existingClass.mergeImportedBy(configClass);
 				}
 				// Otherwise ignore new imported config class; existing non-imported class overrides it.
@@ -225,6 +229,7 @@ class ConfigurationClassParser {
 			else {
 				// Explicit bean definition found, probably replacing an import.
 				// Let's remove the old one and go with the new one.
+				// 如果第二次导入的配置类不是通过@import注解导入的，则删除configurationClasses中已有的配置缓存，删除knownSuperclasses中的配置缓存（如果存在的话）
 				this.configurationClasses.remove(configClass);
 				this.knownSuperclasses.values().removeIf(configClass::equals);
 			}
@@ -258,9 +263,10 @@ class ConfigurationClassParser {
 	@Nullable
 	protected final SourceClass doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)
 			throws IOException {
-		//如果该配置类上的注解为Component注解
+		//如果该配置类上的注解为Component类型注解（@Component、@Controller、@Service等继承@Component的注解）
 		if (configClass.getMetadata().isAnnotated(Component.class.getName())) {
 			// Recursively process any member (nested) classes first
+			// 处理内部类
 			processMemberClasses(configClass, sourceClass);
 		}
 
@@ -279,15 +285,16 @@ class ConfigurationClassParser {
 		}
 
 		// Process any @ComponentScan annotations
-		// 处理ComponentScan.class注解
+		// 处理@ComponentScan注解
 		Set<AnnotationAttributes> componentScans = AnnotationConfigUtils.attributesForRepeatable(
 				sourceClass.getMetadata(), ComponentScans.class, ComponentScan.class);
 		if (!componentScans.isEmpty() &&
 				!this.conditionEvaluator.shouldSkip(sourceClass.getMetadata(), ConfigurationPhase.REGISTER_BEAN)) {
 			for (AnnotationAttributes componentScan : componentScans) {
 				// The config class is annotated with @ComponentScan -> perform the scan immediately
+
 				// ComponentScanAnnotationParser是Spring的一个内部工具，它会基于某个类上的@ComponentScan注解属性分析指定包(package)以获取其中的bean定义
-				// 扫描普通类，带有@Component/@Repository/@Controller/@Service等四个元注解的类，扫描完后注解注册
+				// 扫描普通类，带有@Component/@Repository/@Controller/@Service等四个元注解的类，扫描完后同时将bean注册到容器中
 				Set<BeanDefinitionHolder> scannedBeanDefinitions =
 						this.componentScanParser.parse(componentScan, sourceClass.getMetadata().getClassName());
 				// Check the set of scanned definitions for any further config classes and parse recursively if needed
@@ -296,12 +303,18 @@ class ConfigurationClassParser {
 					if (bdCand == null) {
 						bdCand = holder.getBeanDefinition();
 					}
+					// 再次判断是否为注解配置类
 					if (ConfigurationClassUtils.checkConfigurationClassCandidate(bdCand, this.metadataReaderFactory)) {
 						parse(bdCand.getBeanClassName(), holder.getBeanName());
 					}
 				}
 			}
 		}
+		/**
+		 * 一下均不是普通类：不是通过扫描出来的
+		 * @Import/@ImportResource/@Bean等，会先放到当前ConfigurationClass中
+		 * 然后在ConfigurationClassPostProcessor后面进行统一处理/注册
+		 */
 
 		// Process any @Import annotations
 		// 处理@Import注解(1.实现ImportSelector的类  2、实现ImportBeanDefinitionRegistrar  3、普通类)
@@ -581,6 +594,7 @@ class ConfigurationClassParser {
 							// 执行selectImports方法,获取该接口的返回值
 							String[] importClassNames = selector.selectImports(currentSourceClass.getMetadata());
 							Collection<SourceClass> importSourceClasses = asSourceClasses(importClassNames);
+							// 递归处理，被被Import进来的类可能也有@Import注解
 							processImports(configClass, currentSourceClass, importSourceClasses, false);
 						}
 					}
@@ -588,11 +602,13 @@ class ConfigurationClassParser {
 					else if (candidate.isAssignable(ImportBeanDefinitionRegistrar.class)) {
 						// Candidate class is an ImportBeanDefinitionRegistrar ->
 						// delegate to it to register additional bean definitions
+						// 反射实现一个对象.该对象实现了ImportBeanDefinitionRegistrar接口
 						Class<?> candidateClass = candidate.loadClass();
 						ImportBeanDefinitionRegistrar registrar =
 								BeanUtils.instantiateClass(candidateClass, ImportBeanDefinitionRegistrar.class);
 						ParserStrategyUtils.invokeAwareMethods(
 								registrar, this.environment, this.resourceLoader, this.registry);
+						// 放到当前configClass的importBeanDefinitionRegistrars中，在ConfigurationClassPostProcessor处理configClass时会随之一起处理
 						configClass.addImportBeanDefinitionRegistrar(registrar, currentSourceClass.getMetadata());
 					}
 					// 如果是注入普通类的bd
@@ -601,6 +617,9 @@ class ConfigurationClassParser {
 						// process it as an @Configuration class
 						this.importStack.registerImport(
 								currentSourceClass.getMetadata(), candidate.getMetadata().getClassName());
+						// 如果Import的类型是普通类，则将其当作带有@Configuration的类一样处理
+						// 将candidate构造为ConfigurationClass，标注为importedBy，意味着它是通过被@Import进来的
+						// 后面处理会用到这个判断将这个普通类注册进DefaultListableBeanFactory
 						processConfigurationClass(candidate.asConfigClass(configClass));
 					}
 				}

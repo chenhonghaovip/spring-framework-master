@@ -667,6 +667,7 @@ class CglibAopProxy implements AopProxy, Serializable {
 					// it does nothing but a reflective operation on the target, and no hot
 					// swapping or fancy proxying.
 					Object[] argsToUse = AopProxyUtils.adaptArgumentsIfNecessary(method, args);
+					// 利用反射机制继续执行目标方法
 					retVal = methodProxy.invoke(target, argsToUse);
 				}
 				else {

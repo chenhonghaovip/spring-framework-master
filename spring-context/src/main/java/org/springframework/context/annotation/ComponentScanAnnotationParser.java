@@ -95,6 +95,8 @@ class ComponentScanAnnotationParser {
 			}
 		}
 
+		// 默认懒加载false，此处并不是对某个bd设置lazyInit，这里先对lazyInit设置一个值
+		// 在循环注册扫描出来的bd前调用scanner.postProcessBeanDefinition方法时，会默认取这个值
 		boolean lazyInit = componentScan.getBoolean("lazyInit");
 		if (lazyInit) {
 			scanner.getBeanDefinitionDefaults().setLazyInit(true);
@@ -120,6 +122,8 @@ class ComponentScanAnnotationParser {
 				return declaringClass.equals(className);
 			}
 		});
+
+		// 开始执行扫描,ComponentScanAnnotationParser 最终所使用的扫描器是ClassPathBeanDefinitionScanner,
 		return scanner.doScan(StringUtils.toStringArray(basePackages));
 	}
 

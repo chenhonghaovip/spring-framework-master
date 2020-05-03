@@ -2,9 +2,7 @@ package test.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
 import test.aspect.MyApplicationListener;
 import test.aspect.MyTestApplicationListener;
 import test.aspect.TestAspect;
@@ -17,8 +15,8 @@ import test.post.UserBeanPostProcessor;
  * @date 2020-03-20 15:51
  */
 @Import({UserDao.class})
-@EnableTransactionManagement
-@EnableAspectJAutoProxy
+//@EnableTransactionManagement
+//@EnableAspectJAutoProxy
 @Configuration
 public class AOPConfig {
 
@@ -48,7 +46,11 @@ public class AOPConfig {
 	}
 
 //	@Bean
-//	public UserDao userDao(){
-//    	return new UserDao();
+//	public MyFactoryBean MyFactoryBean(){
+//    	return new MyFactoryBean();
 //	}
+	@Bean
+	public UserDao userDao(){
+    	return new UserDao();
+	}
 }

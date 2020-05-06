@@ -230,6 +230,11 @@ final class PostProcessorRegistrationDelegate {
 
 	public static void registerBeanPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, AbstractApplicationContext applicationContext) {
+		// BeanPostProcessor的子接口
+		// DestructionAwareBeanPostProcessor、InstantiationAwareBeanPostProcessor
+		// MergedBeanDefinitionPostProcessor、SmartInstantiationAwareBeanPostProcessor等不同子接口，
+		// 这些不同类型的BeanPostProcessor在bean创建前后的执行时机是不同的
+
 		// 从所与Bean定义中提取出BeanPostProcessor类型的Bean，显然，最初的6个bean，有三个是BeanPostProcessor：
 		// AutowiredAnnotationBeanPostProcessor  RequiredAnnotationBeanPostProcessor  CommonAnnotationBeanPostProcessor
 		String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanPostProcessor.class, true, false);
@@ -300,12 +305,14 @@ final class PostProcessorRegistrationDelegate {
 		registerBeanPostProcessors(beanFactory, nonOrderedPostProcessors);
 
 		// Finally, re-register all internal BeanPostProcessors.
+		// 最后重新注册internal类型的BeanPostProcessors，这种一般是容器创建时自带的BeanPostProcessors
 		sortPostProcessors(internalPostProcessors, beanFactory);
 		registerBeanPostProcessors(beanFactory, internalPostProcessors);
 
 		// Re-register post-processor for detecting inner beans as ApplicationListeners,
 		// moving it to the end of the processor chain (for picking up proxies etc).
-		// 最后此处需要注意的是：Spring还给我们注册了一个Bean的后置处理器：ApplicationListenerDetector  它的作用：用来检查所有得ApplicationListener
+		// 最后此处需要注意的是：Spring还给我们注册了一个Bean的后置处理器：ApplicationListenerDetector
+		// 它的作用：用来检查bean创建完成后，该bean是否属于ApplicationListener
 		// 有的人就想问了：之前不是注册过了吗，怎么这里又注册一次呢？其实上面的doc里面说得很清楚：
 		// Re-register重新注册这个后置处理器。把它移动到处理器连条的最后面，最后执行
 		beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(applicationContext));

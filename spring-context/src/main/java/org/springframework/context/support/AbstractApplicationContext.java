@@ -512,16 +512,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				postProcessBeanFactory(beanFactory);
 
 				// Invoke factory processors registered as beans in the context.
-				//实例化并调用所有注册的beanFactory后置处理器（实现接口BeanFactoryPostProcessor的bean）。
-				//在beanFactory标准初始化之后执行  例如：PropertyPlaceholderConfigurer(处理占位符)
+				// 实例化并调用所有注册的beanFactory后置处理器（实现接口BeanFactoryPostProcessor的bean）。
+				// 在beanFactory标准初始化之后执行  例如：PropertyPlaceholderConfigurer(处理占位符)
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
-				//实例化和注册beanFactory中扩展了BeanPostProcessor的bean。
-				//例如：
-				//AutowiredAnnotationBeanPostProcessor(处理被@Autowired注解修饰的bean并注入)
-				//RequiredAnnotationBeanPostProcessor(处理被@Required注解修饰的方法)
-				//CommonAnnotationBeanPostProcessor(处理@PreDestroy、@PostConstruct、@Resource等多个注解的作用)等。
+				// 实例化和注册beanFactory中扩展了BeanPostProcessor的bean。
+				// 例如：
+				// AutowiredAnnotationBeanPostProcessor(处理被@Autowired注解修饰的bean并注入)
+				// RequiredAnnotationBeanPostProcessor(处理被@Required注解修饰的方法)
+				// CommonAnnotationBeanPostProcessor(处理@PreDestroy、@PostConstruct、@Resource等多个注解的作用)等。
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.
@@ -529,7 +529,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				initMessageSource();
 
 				// Initialize event multicaster for this context.
-				// 初始化事件广播器
+				// 初始化事件广播器（事件派发器）
 				initApplicationEventMulticaster();
 
 				// Initialize other special beans in specific context subclasses.
@@ -746,6 +746,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	}
 
 	/**
+	 * 目的是为了获取一个beanName为messageSource 的组件
 	 * Initialize the MessageSource.
 	 * Use parent's if none defined in this context.
 	 */

@@ -15,14 +15,14 @@ import org.springframework.beans.factory.FactoryBean;
  * @date 2020-01-20 19:52
  */
 @Slf4j
-public class MyFactoryBean implements FactoryBean<UserDao> {
+public class MyFactoryBean implements FactoryBean<Apple> {
     @Override
-    public UserDao getObject() {
-        return new UserDao();
+    public Apple getObject() {
+        return new Apple();
     }
 
     @Override
-    public Class<UserDao> getObjectType() {
-        return UserDao.class;
+    public Class<Apple> getObjectType() {
+        return Apple.class;
     }
 }

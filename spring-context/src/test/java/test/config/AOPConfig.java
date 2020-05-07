@@ -47,9 +47,10 @@ public class AOPConfig {
 	}
 
 	@Bean
-	public MyFactoryBean MyFactoryBean(){
+	public MyFactoryBean myFactoryBean(){
     	return new MyFactoryBean();
 	}
+
 	@Bean
 	public UserDao userDao(){
     	return new UserDao();

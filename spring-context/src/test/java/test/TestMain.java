@@ -22,8 +22,8 @@ public class TestMain {
 		Arrays.stream(an.getBeanDefinitionNames()).forEach(System.out::println);
 		System.out.println("ioc容器中所有bean实例结束");
 
-//		System.out.println(an.getBean("MyFactoryBean"));
-//		System.out.println(an.getBean("&MyFactoryBean"));
+		System.out.println(an.getBean("myFactoryBean"));
+		System.out.println(an.getBean("&myFactoryBean"));
 		// 容器中保存了组件的代理对象（cglib增强后的对象），这个对象里面保存了详细信息（比如增强器，目标对象）
 		an.publishEvent(new ApplicationEvent("我发布了一个事件"){});
 

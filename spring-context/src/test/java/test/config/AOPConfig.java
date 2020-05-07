@@ -7,6 +7,7 @@ import test.aspect.MyApplicationListener;
 import test.aspect.MyTestApplicationListener;
 import test.aspect.TestAspect;
 import test.dto.Fox;
+import test.dto.MyFactoryBean;
 import test.dto.UserDao;
 import test.post.UserBeanPostProcessor;
 
@@ -45,10 +46,10 @@ public class AOPConfig {
 		return new MyTestApplicationListener();
 	}
 
-//	@Bean
-//	public MyFactoryBean MyFactoryBean(){
-//    	return new MyFactoryBean();
-//	}
+	@Bean
+	public MyFactoryBean MyFactoryBean(){
+    	return new MyFactoryBean();
+	}
 	@Bean
 	public UserDao userDao(){
     	return new UserDao();

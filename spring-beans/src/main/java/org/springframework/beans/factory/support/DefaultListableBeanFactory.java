@@ -803,6 +803,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Trigger initialization of all non-lazy singleton beans...
 		for (String beanName : beanNames) {
+			// 这里根据bean名称获取MergedBeanDefinition，结果类型是RootBeanDefinition
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
 			// 不是抽象类&&是单例&&不是懒加载
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
@@ -836,7 +837,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		}
 
 		// Trigger post-initialization callback for all applicable beans...
-		//从缓存中获取实例化完成的bean实例
+		// 从缓存中获取实例化完成的bean实例
 		// SmartInitializingSingleton：所有非lazy单例Bean实例化完成后的回调方法 Spring4.1才提供
 		// SmartInitializingSingleton的afterSingletonsInstantiated方法是在所有单例bean都已经被创建后执行的
 		// InitializingBean#afterPropertiesSet 是在仅仅自己被创建好了执行的

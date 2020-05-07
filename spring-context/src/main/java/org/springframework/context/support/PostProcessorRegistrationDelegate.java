@@ -225,6 +225,7 @@ final class PostProcessorRegistrationDelegate {
 
 		// Clear cached merged bean definitions since the post-processors might have
 		// modified the original metadata, e.g. replacing placeholders in values...
+		// 清空合并bean缓存，防止BeanFactoryPostProcessor对bean定义进行修改导致bean定义错误
 		beanFactory.clearMetadataCache();
 	}
 

@@ -259,7 +259,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			try {
-				// 根据名字获取合并过的对应的RootBeanDefinition
+				// 根据名字获取合并过的对应的RootBeanDefinition，
+				// 在上一步markBeanAsCreated（）操作中已经删除掉合并缓存中的该bean的信息，所以在此会重新合并bean定义信息
 				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				// 检查mbd是否为抽象的或mbd为单例，但存在args的情况（args只有初始化原型对象才允许存在)
 				checkMergedBeanDefinition(mbd, beanName, args);
@@ -267,7 +268,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// Guarantee initialization of beans that the current bean depends on.
 				// 这里就重要了，因为我们会有属性注入等等  所以这里就是要保证它依赖的那些属性先初始化才行
 				// 这部分是处理循环依赖的核心，这里稍微放一放。下面有大篇幅专门讲解这方面的以及原理解决方案
-				// @DependsOn注解可以控制Bean的初始化顺序
+				// @DependsOn  注解可以控制Bean的初始化顺序,实例化该bean之前所需要依赖的其他bean
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
 					for (String dep : dependsOn) {
@@ -277,6 +278,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 						}
 						registerDependentBean(dep, beanName);
 						try {
+							// 实例化该bean所依赖的其他bean
 							getBean(dep);
 						}
 						catch (NoSuchBeanDefinitionException ex) {
@@ -303,6 +305,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							throw ex;
 						}
 					});
+					// 不论是单例还是原型的实例对象，最终都要通过getObjectForBeanInstance进行转换，最终得到的才是符合要求的bean实例
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 
@@ -1182,6 +1185,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 
 	/**
+	 * 为什么需要对bean定义进行合并处理？
+	 * 		为了要统一处理，很多地方都是获取合并后bean定义的来处理的，因为bean定义可能会被修改，
+	 * 		处理的时候又想处理最新的，那就需要将可能修改的bean定义再一次合并成统一的RootBeanDefinition
+	 *
 	 * Return a merged RootBeanDefinition, traversing the parent bean definition
 	 * if the specified bean corresponds to a child bean definition.
 	 * @param beanName the name of the bean to retrieve the merged definition for
@@ -1191,10 +1198,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	 */
 	protected RootBeanDefinition getMergedLocalBeanDefinition(String beanName) throws BeansException {
 		// Quick check on the concurrent map first, with minimal locking.
+		// 检查缓存中是否存在该beanName的键值对，如果存在，取出并且返回
 		RootBeanDefinition mbd = this.mergedBeanDefinitions.get(beanName);
 		if (mbd != null) {
 			return mbd;
 		}
+		// 否则就进行合并并且返回RootBeanDefinition
 		return getMergedBeanDefinition(beanName, getBeanDefinition(beanName));
 	}
 
@@ -1227,6 +1236,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			throws BeanDefinitionStoreException {
 
 		synchronized (this.mergedBeanDefinitions) {
+			// 准备一个RootBeanDefinition变量引用，用于记录要构建和最终要返回的BeanDefinition，
+			// 这里根据上下文不难猜测 mbd 应该就是 mergedBeanDefinition 的缩写。
 			RootBeanDefinition mbd = null;
 
 			// Check with full lock now in order to enforce the same merged instance.
@@ -1236,8 +1247,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 			if (mbd == null) {
 				if (bd.getParentName() == null) {
+					// bd不是一个ChildBeanDefinition的情况,换句话讲，这 bd应该是 :
+					// 1. 一个独立的 GenericBeanDefinition 实例，parentName 属性为null
+					// 2. 或者是一个 RootBeanDefinition 实例，parentName 属性为null
 					// Use copy of given root bean definition.
 					if (bd instanceof RootBeanDefinition) {
+						// 此时mbd直接使用一个bd的复制品
 						mbd = ((RootBeanDefinition) bd).cloneBeanDefinition();
 					}
 					else {
@@ -1245,6 +1260,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					}
 				}
 				else {
+					// bd是一个ChildBeanDefinition的情况,这种情况下，需要将bd和其parent bean definition 合并到一起，
+					// 形成最终的 mbd，下面是获取bd的 parent bean definition 的过程，最终结果记录到 pbd，
+					// 并且可以看到该过程中递归使用了getMergedBeanDefinition(), 为什么呢?
+					// 因为 bd 的 parent bd 可能也是个ChildBeanDefinition，所以该过程需要递归处理
 					// Child bean definition: needs to be merged with parent.
 					BeanDefinition pbd;
 					try {
@@ -1269,11 +1288,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 								"Could not resolve parent bean definition '" + bd.getParentName() + "'", ex);
 					}
 					// Deep copy with overridden values.
+					// 现在已经获取 bd 的parent bd到pbd，从上面的过程可以看出，这个pbd也是已经"合并"过的。
+					// 这里根据pbd创建最终的mbd，然后再使用bd覆盖一次，这样就相当于mbd来自两个BeanDefinition:
+					// 当前 BeanDefinition 及其合并的("Merged")双亲 BeanDefinition,
+					// 然后mbd就是针对当前bd的一个MergedBeanDefinition(合并的BeanDefinition)了。
 					mbd = new RootBeanDefinition(pbd);
 					mbd.overrideFrom(bd);
 				}
 
 				// Set default singleton scope, if not configured before.
+				// 如果没有配置scope作用域时，默认设置为单例模式
 				if (!StringUtils.hasLength(mbd.getScope())) {
 					mbd.setScope(RootBeanDefinition.SCOPE_SINGLETON);
 				}
@@ -1288,6 +1312,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 				// Cache the merged bean definition for the time being
 				// (it might still get re-merged later on in order to pick up metadata changes)
+				// 将合并后的bean定义加入到合并bean的缓存中去
 				if (containingBd == null && isCacheBeanMetadata()) {
 					this.mergedBeanDefinitions.put(beanName, mbd);
 				}
@@ -1554,7 +1579,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				if (!this.alreadyCreated.contains(beanName)) {
 					// Let the bean definition get re-merged now that we're actually creating
 					// the bean... just in case some of its metadata changed in the meantime.
+					// 从已经合并的bean定义缓存中删除该bean定义，因为下一步需要创建该bean,
+					// 得需要最新的bean定义，所以要进行合并一次，获取到最新的bean定义信息
 					clearMergedBeanDefinition(beanName);
+					// 将该bean名称加入到alreadyCreated缓存中，表示该bean正在被创建
 					this.alreadyCreated.add(beanName);
 				}
 			}
@@ -1621,7 +1649,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
 
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
-		// 如果指定的beanName是工厂相关（以&为前缀）
+		// 进行类型检测，如果是&作为前缀，但是传入beanInstance不是FactoryBean类型的，则抛出异常
 		if (BeanFactoryUtils.isFactoryDereference(name)) {
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;
@@ -1635,13 +1663,16 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
+		// 如果是非FactoryBean或者是&作为前缀的前缀，则返回实例对象，无需转换
 		if (!(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)) {
 			return beanInstance;
 		}
-
+		// 需要转换，说明输入的name获取的bean是需要调用FactoryBean的getObject
+		// 也就是说，beanInstance是FactoryBean类型，同时name不是以&作为前缀
 		Object object = null;
 		if (mbd == null) {
 			// 尝试从缓存中获取bean
+			// 先到FactoryBean生产bean对象的缓存中去取，如果没有的话则用factorybean去生产一个
 			object = getCachedObjectForFactoryBean(beanName);
 		}
 		if (object == null) {
@@ -1652,6 +1683,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				mbd = getMergedLocalBeanDefinition(beanName);
 			}
 			boolean synthetic = (mbd != null && mbd.isSynthetic());
+			// 通过factoryBean去生产bean
 			object = getObjectFromFactoryBean(factory, beanName, !synthetic);
 		}
 		return object;

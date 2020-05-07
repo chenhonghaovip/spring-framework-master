@@ -254,11 +254,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					}
 					afterSingletonCreation(beanName);
 				}
-				// 这里也非常重要：若是新的Bean，那就执行addSingleton这个方法，这个方法做了什么，就下面4步操作：
-				//this.singletonObjects.put(beanName, singletonObject); //缓存起来
-				//this.singletonFactories.remove(beanName); //把对应ObjectFactory的缓存移除
-				//this.earlySingletonObjects.remove(beanName);
-				//this.registeredSingletons.add(beanName);
+				// 这里也非常重要：若是新的Bean，那就执行addSingleton这个方法，这个方法主要进行缓存操作
 				if (newSingleton) {
 					addSingleton(beanName, singletonObject);
 				}

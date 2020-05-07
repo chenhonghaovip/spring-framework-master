@@ -525,7 +525,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (mbd.isSingleton()) {
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
-		//实际创建的交给createBeanInstance来完成，
+		//实际创建的交给createBeanInstance来完成，利用工厂方法或则构造器创建目标对象
 		//bean的生成，这里会使用默认的类生成器，包装成BeanWrapperImpl类，为了下面的populateBean方法的属性注入做准备
 		if (instanceWrapper == null) {
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
@@ -538,11 +538,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Allow post-processors to modify the merged bean definition.
+		// 允许后置处理器处理该bean
 		synchronized (mbd.postProcessingLock) {
 			if (!mbd.postProcessed) {
 				try {
 					// 此处处理这个接口的处理器：MergedBeanDefinitionPostProcessor，他在BeanPostProcessor的基础上增加了postProcessMergedBeanDefinition方法，在此处就被调用了
-					// 主要是处理@PostConstruct,@Autowire,@Value,@Resource，@PreDestory等这些注解。（显然对应哪去处理器，一目了然了） 下面会举例看看AutowiredAnnotationBeanPostProcessor的处理
+					// 主要是处理@PostConstruct,@Autowire,@Value,@Resource，@PreDestory等这些注解。（显然对应哪去处理器，一目了然了）
+					// 下面会举例看看AutowiredAnnotationBeanPostProcessor的处理
 					applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
 				}
 				catch (Throwable ex) {
@@ -585,7 +587,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			//如果配置了init-mothod，调用相应的init方法
 			//遍历后置处理器，调用实现的postProcessAfterInitialization
 
-			// 关于populateBean和initializeBean的详解
+			// 关于populateBean和initializeBean的详解，初始化bean
 			exposedObject = initializeBean(beanName, exposedObject, mbd);
 		}
 		catch (Throwable ex) {
@@ -598,7 +600,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
-		//如果earlySingletonExposure为true，尝试从缓存获取该bean（一般存放在singletonFactories对象通过调用getObject 把对象存入earlySingletonObjects），
+		// 如果earlySingletonExposure为true，尝试从缓存获取该bean（一般存放在singletonFactories对象通过调用getObject 把对象存入earlySingletonObjects），
 		// 分别从singletonObjects和earlySingletonObjects获取对象   这里依然是处理循环依赖相关问题的
 		if (earlySingletonExposure) {
 			Object earlySingletonReference = getSingleton(beanName, false);
@@ -628,6 +630,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Register bean as disposable.
+		// 如果该bean存在销毁方法时，注册bean的销毁方法
 		try {
 			registerDisposableBeanIfNecessary(beanName, bean, mbd);
 		}
@@ -1171,6 +1174,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// 如果工厂方法不为空，则使用工厂方法初始化策略并返回创建结果
+		// 当通过@Bean注解方式生成bean时，factoryMethodName为bean创建方法
 		if (mbd.getFactoryMethodName() != null) {
 			return instantiateUsingFactoryMethod(beanName, mbd, args);
 		}
@@ -1442,6 +1446,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
 					InstantiationAwareBeanPostProcessor ibp = (InstantiationAwareBeanPostProcessor) bp;
+					// 执行后置处理器的postProcessProperties方法
 					PropertyValues pvsToUse = ibp.postProcessProperties(pvs, bw.getWrappedInstance(), beanName);
 					if (pvsToUse == null) {
 						if (filteredPds == null) {
@@ -1860,6 +1865,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			throws Throwable {
 
 		boolean isInitializingBean = (bean instanceof InitializingBean);
+		// 如果bean实现了InitializingBean接口，且包含afterPropertiesSet，则执行afterPropertiesSet（）方法进行初始化操作
 		if (isInitializingBean && (mbd == null || !mbd.isExternallyManagedInitMethod("afterPropertiesSet"))) {
 			if (logger.isTraceEnabled()) {
 				logger.trace("Invoking afterPropertiesSet() on bean with name '" + beanName + "'");
@@ -1880,6 +1886,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
+		// 看是否自定义了初始化方法，如果存在，执行自定义的初始化方法
 		if (mbd != null && bean.getClass() != NullBean.class) {
 			String initMethodName = mbd.getInitMethodName();
 			if (StringUtils.hasLength(initMethodName) &&

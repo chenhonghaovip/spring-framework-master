@@ -8,4 +8,8 @@ public class Apple {
 
 	private String name;
 
+	public void test(){
+		System.out.println("apple test");
+	}
+
 }

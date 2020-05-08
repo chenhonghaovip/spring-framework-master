@@ -1672,11 +1672,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		Object object = null;
 		if (mbd == null) {
 			// 尝试从缓存中获取bean
-			// 先到FactoryBean生产bean对象的缓存中去取，如果没有的话则用factorybean去生产一个
+			// 先到FactoryBean生产bean对象的缓存factoryBeanObjectCache中去取，如果没有的话则用FactoryBean去生产一个
 			object = getCachedObjectForFactoryBean(beanName);
 		}
 		if (object == null) {
 			// Return bean instance from factory.
+			// 获取对应的FactoryBean
 			FactoryBean<?> factory = (FactoryBean<?>) beanInstance;
 			// Caches object obtained from FactoryBean if it is a singleton.
 			if (mbd == null && containsBeanDefinition(beanName)) {

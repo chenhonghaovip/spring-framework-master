@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class Fox {
 	@Autowired
 	private UserDao userDao;
+
     public Fox() {
     }
 

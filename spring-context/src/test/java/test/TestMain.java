@@ -1,7 +1,6 @@
 package test;
 
 import org.junit.Test;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import test.config.AOPConfig;
 import test.dto.Fox;
@@ -23,7 +22,7 @@ public class TestMain {
 //		System.out.println(an.getBean("myFactoryBean"));
 //		System.out.println(an.getBean("&myFactoryBean"));
 		// 容器中保存了组件的代理对象（cglib增强后的对象），这个对象里面保存了详细信息（比如增强器，目标对象）
-		an.publishEvent(new ApplicationEvent("我发布了一个事件"){});
+//		an.publishEvent(new ApplicationEvent("我发布了一个事件"){});
 
 		// 1、进入到CglibAopProxy中的intercept方法中
         fox.sout();

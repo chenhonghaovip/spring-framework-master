@@ -113,6 +113,9 @@ class ConfigurationClassBeanDefinitionReader {
 	/**
 	 * Read a particular {@link ConfigurationClass}, registering bean definitions
 	 * for the class itself and all of its {@link Bean} methods.
+	 * 从指定的一个配置类ConfigurationClass中提取bean定义信息并注册bean定义到bean容器 :
+	 * 1. 配置类本身要注册为bean定义
+	 * 2. 配置类中的@Bean注解方法要注册为配置类
 	 */
 	private void loadBeanDefinitionsForConfigurationClass(
 			ConfigurationClass configClass, TrackedConditionEvaluator trackedConditionEvaluator) {
@@ -126,6 +129,7 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 		// 判断是否是通过@import注解注入的
+		// 如果这是一个通过import机制被导入进来的配置类，将它本身作为一个bean定义注册到容器
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
@@ -134,12 +138,19 @@ class ConfigurationClassBeanDefinitionReader {
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
 
+		// 通过@ImportResource注解注入的
+		// 从配置类导入的bean定义资源中获取bean定义信息并注册到容器
+		// 比如导入的xml或者groovy bean定义文件
 		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
+
+		// 通过@import注解实现ImportBeanDefinitionRegistrar接口注入的
+		// 从配置类导入的ImportBeanDefinitionRegistrar中获取bean定义信息并注册到容器
 		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
 	}
 
 	/**
 	 * Register the {@link Configuration} class itself as a bean definition.
+	 * 配置类本身作为bean定义注册到容器
 	 */
 	private void registerBeanDefinitionForImportedConfigurationClass(ConfigurationClass configClass) {
 		AnnotationMetadata metadata = configClass.getMetadata();
@@ -163,6 +174,7 @@ class ConfigurationClassBeanDefinitionReader {
 	/**
 	 * Read the given {@link BeanMethod}, registering bean definitions
 	 * with the BeanDefinitionRegistry based on its contents.
+	 * Bean注解的配置类方法作为bean定义注册到bean容器
 	 */
 	@SuppressWarnings("deprecation")  // for RequiredAnnotationBeanPostProcessor.SKIP_REQUIRED_CHECK_ATTRIBUTE
 	private void loadBeanDefinitionsForBeanMethod(BeanMethod beanMethod) {
@@ -371,6 +383,10 @@ class ConfigurationClassBeanDefinitionReader {
 		});
 	}
 
+	/**
+	 * 对参数中所有ImportBeanDefinitionRegistrar实例，逐一调用其方法registerBeanDefinitions()
+	 * @param registrars registrars
+	 */
 	private void loadBeanDefinitionsFromRegistrars(Map<ImportBeanDefinitionRegistrar, AnnotationMetadata> registrars) {
 		registrars.forEach((registrar, metadata) ->
 				registrar.registerBeanDefinitions(metadata, this.registry, this.importBeanNameGenerator));
@@ -433,6 +449,7 @@ class ConfigurationClassBeanDefinitionReader {
 
 
 	/**
+	 * 用于跟踪某个配置类是否需要被忽略
 	 * Evaluate {@code @Conditional} annotations, tracking results and taking into
 	 * account 'imported by'.
 	 */

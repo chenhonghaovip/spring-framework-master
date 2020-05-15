@@ -1,0 +1,606 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="test.mapper.WaybillBcListMapper">
+  <resultMap id="BaseResultMap" type="test.dto.WaybillBcList">
+    <id column="w_id" jdbcType="CHAR" property="wId" />
+    <result column="batch_id" jdbcType="CHAR" property="batchId" />
+    <result column="serial_number" jdbcType="VARCHAR" property="serialNumber" />
+    <result column="user_id" jdbcType="CHAR" property="userId" />
+    <result column="ship_id" jdbcType="VARCHAR" property="shipId" />
+    <result column="send_name" jdbcType="VARCHAR" property="sendName" />
+    <result column="send_phone" jdbcType="VARCHAR" property="sendPhone" />
+    <result column="send_province" jdbcType="VARCHAR" property="sendProvince" />
+    <result column="send_city" jdbcType="VARCHAR" property="sendCity" />
+    <result column="send_county" jdbcType="VARCHAR" property="sendCounty" />
+    <result column="send_adcode" jdbcType="CHAR" property="sendAdcode" />
+    <result column="send_address" jdbcType="VARCHAR" property="sendAddress" />
+    <result column="send_longitude" jdbcType="DECIMAL" property="sendLongitude" />
+    <result column="send_latitude" jdbcType="DECIMAL" property="sendLatitude" />
+    <result column="receive_name" jdbcType="VARCHAR" property="receiveName" />
+    <result column="receive_phone" jdbcType="VARCHAR" property="receivePhone" />
+    <result column="receive_province" jdbcType="VARCHAR" property="receiveProvince" />
+    <result column="receive_county" jdbcType="VARCHAR" property="receiveCounty" />
+    <result column="receive_city" jdbcType="VARCHAR" property="receiveCity" />
+    <result column="receive_adcode" jdbcType="CHAR" property="receiveAdcode" />
+    <result column="receive_address" jdbcType="VARCHAR" property="receiveAddress" />
+    <result column="receive_longitude" jdbcType="DECIMAL" property="receiveLongitude" />
+    <result column="receive_latitude" jdbcType="DECIMAL" property="receiveLatitude" />
+    <result column="is_timely" jdbcType="TINYINT" property="isTimely" />
+    <result column="et_start_time" jdbcType="TIMESTAMP" property="etStartTime" />
+    <result column="et_arrive_time" jdbcType="TIMESTAMP" property="etArriveTime" />
+    <result column="cargo_weight" jdbcType="DECIMAL" property="cargoWeight" />
+    <result column="cargo_amount" jdbcType="DECIMAL" property="cargoAmount" />
+    <result column="cargo_type" jdbcType="VARCHAR" property="cargoType" />
+    <result column="order_status" jdbcType="TINYINT" property="orderStatus" />
+    <result column="order_payment" jdbcType="TINYINT" property="orderPayment" />
+    <result column="order_pay_status" jdbcType="TINYINT" property="orderPayStatus" />
+    <result column="delivery_fee" jdbcType="DECIMAL" property="deliveryFee" />
+    <result column="total_prices" jdbcType="DECIMAL" property="totalPrices" />
+    <result column="expect_prices" jdbcType="DECIMAL" property="expectPrices" />
+    <result column="order_remark" jdbcType="VARCHAR" property="orderRemark" />
+    <result column="order_source" jdbcType="TINYINT" property="orderSource" />
+    <result column="order_type" jdbcType="TINYINT" property="orderType" />
+    <result column="single_way" jdbcType="TINYINT" property="singleWay" />
+    <result column="delivery_mode" jdbcType="TINYINT" property="deliveryMode" />
+    <result column="order_time" jdbcType="TIMESTAMP" property="orderTime" />
+    <result column="create_date" jdbcType="DATE" property="createDate" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_by" jdbcType="CHAR" property="updateBy" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="delete_flag" jdbcType="TINYINT" property="deleteFlag" />
+    <result column="is_overdistance" jdbcType="TINYINT" property="isOverdistance" />
+    <result column="is_overtime" jdbcType="TINYINT" property="isOvertime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    w_id, batch_id, serial_number, user_id, ship_id, send_name, send_phone, send_province, 
+    send_city, send_county, send_adcode, send_address, send_longitude, send_latitude, 
+    receive_name, receive_phone, receive_province, receive_county, receive_city, receive_adcode, 
+    receive_address, receive_longitude, receive_latitude, is_timely, et_start_time, et_arrive_time, 
+    cargo_weight, cargo_amount, cargo_type, order_status, order_payment, order_pay_status, 
+    delivery_fee, total_prices, expect_prices, order_remark, order_source, order_type, 
+    single_way, delivery_mode, order_time, create_date, create_time, update_by, update_time, 
+    delete_flag, is_overdistance, is_overtime
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from waybill_bc_list
+    where w_id = #{wId,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from waybill_bc_list
+    where w_id = #{wId,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="test.dto.WaybillBcList">
+    insert into waybill_bc_list (w_id, batch_id, serial_number, 
+      user_id, ship_id, send_name, 
+      send_phone, send_province, send_city, 
+      send_county, send_adcode, send_address, 
+      send_longitude, send_latitude, receive_name, 
+      receive_phone, receive_province, receive_county, 
+      receive_city, receive_adcode, receive_address, 
+      receive_longitude, receive_latitude, is_timely, 
+      et_start_time, et_arrive_time, cargo_weight, 
+      cargo_amount, cargo_type, order_status, 
+      order_payment, order_pay_status, delivery_fee, 
+      total_prices, expect_prices, order_remark, 
+      order_source, order_type, single_way, 
+      delivery_mode, order_time, create_date, 
+      create_time, update_by, update_time, 
+      delete_flag, is_overdistance, is_overtime
+      )
+    values (#{wId,jdbcType=CHAR}, #{batchId,jdbcType=CHAR}, #{serialNumber,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=CHAR}, #{shipId,jdbcType=VARCHAR}, #{sendName,jdbcType=VARCHAR}, 
+      #{sendPhone,jdbcType=VARCHAR}, #{sendProvince,jdbcType=VARCHAR}, #{sendCity,jdbcType=VARCHAR}, 
+      #{sendCounty,jdbcType=VARCHAR}, #{sendAdcode,jdbcType=CHAR}, #{sendAddress,jdbcType=VARCHAR}, 
+      #{sendLongitude,jdbcType=DECIMAL}, #{sendLatitude,jdbcType=DECIMAL}, #{receiveName,jdbcType=VARCHAR}, 
+      #{receivePhone,jdbcType=VARCHAR}, #{receiveProvince,jdbcType=VARCHAR}, #{receiveCounty,jdbcType=VARCHAR}, 
+      #{receiveCity,jdbcType=VARCHAR}, #{receiveAdcode,jdbcType=CHAR}, #{receiveAddress,jdbcType=VARCHAR}, 
+      #{receiveLongitude,jdbcType=DECIMAL}, #{receiveLatitude,jdbcType=DECIMAL}, #{isTimely,jdbcType=TINYINT}, 
+      #{etStartTime,jdbcType=TIMESTAMP}, #{etArriveTime,jdbcType=TIMESTAMP}, #{cargoWeight,jdbcType=DECIMAL}, 
+      #{cargoAmount,jdbcType=DECIMAL}, #{cargoType,jdbcType=VARCHAR}, #{orderStatus,jdbcType=TINYINT}, 
+      #{orderPayment,jdbcType=TINYINT}, #{orderPayStatus,jdbcType=TINYINT}, #{deliveryFee,jdbcType=DECIMAL}, 
+      #{totalPrices,jdbcType=DECIMAL}, #{expectPrices,jdbcType=DECIMAL}, #{orderRemark,jdbcType=VARCHAR}, 
+      #{orderSource,jdbcType=TINYINT}, #{orderType,jdbcType=TINYINT}, #{singleWay,jdbcType=TINYINT}, 
+      #{deliveryMode,jdbcType=TINYINT}, #{orderTime,jdbcType=TIMESTAMP}, #{createDate,jdbcType=DATE}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=CHAR}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{deleteFlag,jdbcType=TINYINT}, #{isOverdistance,jdbcType=TINYINT}, #{isOvertime,jdbcType=TINYINT}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="test.dto.WaybillBcList">
+    insert into waybill_bc_list
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="wId != null">
+        w_id,
+      </if>
+      <if test="batchId != null">
+        batch_id,
+      </if>
+      <if test="serialNumber != null">
+        serial_number,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="shipId != null">
+        ship_id,
+      </if>
+      <if test="sendName != null">
+        send_name,
+      </if>
+      <if test="sendPhone != null">
+        send_phone,
+      </if>
+      <if test="sendProvince != null">
+        send_province,
+      </if>
+      <if test="sendCity != null">
+        send_city,
+      </if>
+      <if test="sendCounty != null">
+        send_county,
+      </if>
+      <if test="sendAdcode != null">
+        send_adcode,
+      </if>
+      <if test="sendAddress != null">
+        send_address,
+      </if>
+      <if test="sendLongitude != null">
+        send_longitude,
+      </if>
+      <if test="sendLatitude != null">
+        send_latitude,
+      </if>
+      <if test="receiveName != null">
+        receive_name,
+      </if>
+      <if test="receivePhone != null">
+        receive_phone,
+      </if>
+      <if test="receiveProvince != null">
+        receive_province,
+      </if>
+      <if test="receiveCounty != null">
+        receive_county,
+      </if>
+      <if test="receiveCity != null">
+        receive_city,
+      </if>
+      <if test="receiveAdcode != null">
+        receive_adcode,
+      </if>
+      <if test="receiveAddress != null">
+        receive_address,
+      </if>
+      <if test="receiveLongitude != null">
+        receive_longitude,
+      </if>
+      <if test="receiveLatitude != null">
+        receive_latitude,
+      </if>
+      <if test="isTimely != null">
+        is_timely,
+      </if>
+      <if test="etStartTime != null">
+        et_start_time,
+      </if>
+      <if test="etArriveTime != null">
+        et_arrive_time,
+      </if>
+      <if test="cargoWeight != null">
+        cargo_weight,
+      </if>
+      <if test="cargoAmount != null">
+        cargo_amount,
+      </if>
+      <if test="cargoType != null">
+        cargo_type,
+      </if>
+      <if test="orderStatus != null">
+        order_status,
+      </if>
+      <if test="orderPayment != null">
+        order_payment,
+      </if>
+      <if test="orderPayStatus != null">
+        order_pay_status,
+      </if>
+      <if test="deliveryFee != null">
+        delivery_fee,
+      </if>
+      <if test="totalPrices != null">
+        total_prices,
+      </if>
+      <if test="expectPrices != null">
+        expect_prices,
+      </if>
+      <if test="orderRemark != null">
+        order_remark,
+      </if>
+      <if test="orderSource != null">
+        order_source,
+      </if>
+      <if test="orderType != null">
+        order_type,
+      </if>
+      <if test="singleWay != null">
+        single_way,
+      </if>
+      <if test="deliveryMode != null">
+        delivery_mode,
+      </if>
+      <if test="orderTime != null">
+        order_time,
+      </if>
+      <if test="createDate != null">
+        create_date,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag,
+      </if>
+      <if test="isOverdistance != null">
+        is_overdistance,
+      </if>
+      <if test="isOvertime != null">
+        is_overtime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="wId != null">
+        #{wId,jdbcType=CHAR},
+      </if>
+      <if test="batchId != null">
+        #{batchId,jdbcType=CHAR},
+      </if>
+      <if test="serialNumber != null">
+        #{serialNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=CHAR},
+      </if>
+      <if test="shipId != null">
+        #{shipId,jdbcType=VARCHAR},
+      </if>
+      <if test="sendName != null">
+        #{sendName,jdbcType=VARCHAR},
+      </if>
+      <if test="sendPhone != null">
+        #{sendPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="sendProvince != null">
+        #{sendProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="sendCity != null">
+        #{sendCity,jdbcType=VARCHAR},
+      </if>
+      <if test="sendCounty != null">
+        #{sendCounty,jdbcType=VARCHAR},
+      </if>
+      <if test="sendAdcode != null">
+        #{sendAdcode,jdbcType=CHAR},
+      </if>
+      <if test="sendAddress != null">
+        #{sendAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="sendLongitude != null">
+        #{sendLongitude,jdbcType=DECIMAL},
+      </if>
+      <if test="sendLatitude != null">
+        #{sendLatitude,jdbcType=DECIMAL},
+      </if>
+      <if test="receiveName != null">
+        #{receiveName,jdbcType=VARCHAR},
+      </if>
+      <if test="receivePhone != null">
+        #{receivePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveProvince != null">
+        #{receiveProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveCounty != null">
+        #{receiveCounty,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveCity != null">
+        #{receiveCity,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveAdcode != null">
+        #{receiveAdcode,jdbcType=CHAR},
+      </if>
+      <if test="receiveAddress != null">
+        #{receiveAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveLongitude != null">
+        #{receiveLongitude,jdbcType=DECIMAL},
+      </if>
+      <if test="receiveLatitude != null">
+        #{receiveLatitude,jdbcType=DECIMAL},
+      </if>
+      <if test="isTimely != null">
+        #{isTimely,jdbcType=TINYINT},
+      </if>
+      <if test="etStartTime != null">
+        #{etStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="etArriveTime != null">
+        #{etArriveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cargoWeight != null">
+        #{cargoWeight,jdbcType=DECIMAL},
+      </if>
+      <if test="cargoAmount != null">
+        #{cargoAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="cargoType != null">
+        #{cargoType,jdbcType=VARCHAR},
+      </if>
+      <if test="orderStatus != null">
+        #{orderStatus,jdbcType=TINYINT},
+      </if>
+      <if test="orderPayment != null">
+        #{orderPayment,jdbcType=TINYINT},
+      </if>
+      <if test="orderPayStatus != null">
+        #{orderPayStatus,jdbcType=TINYINT},
+      </if>
+      <if test="deliveryFee != null">
+        #{deliveryFee,jdbcType=DECIMAL},
+      </if>
+      <if test="totalPrices != null">
+        #{totalPrices,jdbcType=DECIMAL},
+      </if>
+      <if test="expectPrices != null">
+        #{expectPrices,jdbcType=DECIMAL},
+      </if>
+      <if test="orderRemark != null">
+        #{orderRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="orderSource != null">
+        #{orderSource,jdbcType=TINYINT},
+      </if>
+      <if test="orderType != null">
+        #{orderType,jdbcType=TINYINT},
+      </if>
+      <if test="singleWay != null">
+        #{singleWay,jdbcType=TINYINT},
+      </if>
+      <if test="deliveryMode != null">
+        #{deliveryMode,jdbcType=TINYINT},
+      </if>
+      <if test="orderTime != null">
+        #{orderTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createDate != null">
+        #{createDate,jdbcType=DATE},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=CHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleteFlag != null">
+        #{deleteFlag,jdbcType=TINYINT},
+      </if>
+      <if test="isOverdistance != null">
+        #{isOverdistance,jdbcType=TINYINT},
+      </if>
+      <if test="isOvertime != null">
+        #{isOvertime,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="test.dto.WaybillBcList">
+    update waybill_bc_list
+    <set>
+      <if test="batchId != null">
+        batch_id = #{batchId,jdbcType=CHAR},
+      </if>
+      <if test="serialNumber != null">
+        serial_number = #{serialNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=CHAR},
+      </if>
+      <if test="shipId != null">
+        ship_id = #{shipId,jdbcType=VARCHAR},
+      </if>
+      <if test="sendName != null">
+        send_name = #{sendName,jdbcType=VARCHAR},
+      </if>
+      <if test="sendPhone != null">
+        send_phone = #{sendPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="sendProvince != null">
+        send_province = #{sendProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="sendCity != null">
+        send_city = #{sendCity,jdbcType=VARCHAR},
+      </if>
+      <if test="sendCounty != null">
+        send_county = #{sendCounty,jdbcType=VARCHAR},
+      </if>
+      <if test="sendAdcode != null">
+        send_adcode = #{sendAdcode,jdbcType=CHAR},
+      </if>
+      <if test="sendAddress != null">
+        send_address = #{sendAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="sendLongitude != null">
+        send_longitude = #{sendLongitude,jdbcType=DECIMAL},
+      </if>
+      <if test="sendLatitude != null">
+        send_latitude = #{sendLatitude,jdbcType=DECIMAL},
+      </if>
+      <if test="receiveName != null">
+        receive_name = #{receiveName,jdbcType=VARCHAR},
+      </if>
+      <if test="receivePhone != null">
+        receive_phone = #{receivePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveProvince != null">
+        receive_province = #{receiveProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveCounty != null">
+        receive_county = #{receiveCounty,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveCity != null">
+        receive_city = #{receiveCity,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveAdcode != null">
+        receive_adcode = #{receiveAdcode,jdbcType=CHAR},
+      </if>
+      <if test="receiveAddress != null">
+        receive_address = #{receiveAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveLongitude != null">
+        receive_longitude = #{receiveLongitude,jdbcType=DECIMAL},
+      </if>
+      <if test="receiveLatitude != null">
+        receive_latitude = #{receiveLatitude,jdbcType=DECIMAL},
+      </if>
+      <if test="isTimely != null">
+        is_timely = #{isTimely,jdbcType=TINYINT},
+      </if>
+      <if test="etStartTime != null">
+        et_start_time = #{etStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="etArriveTime != null">
+        et_arrive_time = #{etArriveTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="cargoWeight != null">
+        cargo_weight = #{cargoWeight,jdbcType=DECIMAL},
+      </if>
+      <if test="cargoAmount != null">
+        cargo_amount = #{cargoAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="cargoType != null">
+        cargo_type = #{cargoType,jdbcType=VARCHAR},
+      </if>
+      <if test="orderStatus != null">
+        order_status = #{orderStatus,jdbcType=TINYINT},
+      </if>
+      <if test="orderPayment != null">
+        order_payment = #{orderPayment,jdbcType=TINYINT},
+      </if>
+      <if test="orderPayStatus != null">
+        order_pay_status = #{orderPayStatus,jdbcType=TINYINT},
+      </if>
+      <if test="deliveryFee != null">
+        delivery_fee = #{deliveryFee,jdbcType=DECIMAL},
+      </if>
+      <if test="totalPrices != null">
+        total_prices = #{totalPrices,jdbcType=DECIMAL},
+      </if>
+      <if test="expectPrices != null">
+        expect_prices = #{expectPrices,jdbcType=DECIMAL},
+      </if>
+      <if test="orderRemark != null">
+        order_remark = #{orderRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="orderSource != null">
+        order_source = #{orderSource,jdbcType=TINYINT},
+      </if>
+      <if test="orderType != null">
+        order_type = #{orderType,jdbcType=TINYINT},
+      </if>
+      <if test="singleWay != null">
+        single_way = #{singleWay,jdbcType=TINYINT},
+      </if>
+      <if test="deliveryMode != null">
+        delivery_mode = #{deliveryMode,jdbcType=TINYINT},
+      </if>
+      <if test="orderTime != null">
+        order_time = #{orderTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createDate != null">
+        create_date = #{createDate,jdbcType=DATE},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=CHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag = #{deleteFlag,jdbcType=TINYINT},
+      </if>
+      <if test="isOverdistance != null">
+        is_overdistance = #{isOverdistance,jdbcType=TINYINT},
+      </if>
+      <if test="isOvertime != null">
+        is_overtime = #{isOvertime,jdbcType=TINYINT},
+      </if>
+    </set>
+    where w_id = #{wId,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="test.dto.WaybillBcList">
+    update waybill_bc_list
+    set batch_id = #{batchId,jdbcType=CHAR},
+      serial_number = #{serialNumber,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=CHAR},
+      ship_id = #{shipId,jdbcType=VARCHAR},
+      send_name = #{sendName,jdbcType=VARCHAR},
+      send_phone = #{sendPhone,jdbcType=VARCHAR},
+      send_province = #{sendProvince,jdbcType=VARCHAR},
+      send_city = #{sendCity,jdbcType=VARCHAR},
+      send_county = #{sendCounty,jdbcType=VARCHAR},
+      send_adcode = #{sendAdcode,jdbcType=CHAR},
+      send_address = #{sendAddress,jdbcType=VARCHAR},
+      send_longitude = #{sendLongitude,jdbcType=DECIMAL},
+      send_latitude = #{sendLatitude,jdbcType=DECIMAL},
+      receive_name = #{receiveName,jdbcType=VARCHAR},
+      receive_phone = #{receivePhone,jdbcType=VARCHAR},
+      receive_province = #{receiveProvince,jdbcType=VARCHAR},
+      receive_county = #{receiveCounty,jdbcType=VARCHAR},
+      receive_city = #{receiveCity,jdbcType=VARCHAR},
+      receive_adcode = #{receiveAdcode,jdbcType=CHAR},
+      receive_address = #{receiveAddress,jdbcType=VARCHAR},
+      receive_longitude = #{receiveLongitude,jdbcType=DECIMAL},
+      receive_latitude = #{receiveLatitude,jdbcType=DECIMAL},
+      is_timely = #{isTimely,jdbcType=TINYINT},
+      et_start_time = #{etStartTime,jdbcType=TIMESTAMP},
+      et_arrive_time = #{etArriveTime,jdbcType=TIMESTAMP},
+      cargo_weight = #{cargoWeight,jdbcType=DECIMAL},
+      cargo_amount = #{cargoAmount,jdbcType=DECIMAL},
+      cargo_type = #{cargoType,jdbcType=VARCHAR},
+      order_status = #{orderStatus,jdbcType=TINYINT},
+      order_payment = #{orderPayment,jdbcType=TINYINT},
+      order_pay_status = #{orderPayStatus,jdbcType=TINYINT},
+      delivery_fee = #{deliveryFee,jdbcType=DECIMAL},
+      total_prices = #{totalPrices,jdbcType=DECIMAL},
+      expect_prices = #{expectPrices,jdbcType=DECIMAL},
+      order_remark = #{orderRemark,jdbcType=VARCHAR},
+      order_source = #{orderSource,jdbcType=TINYINT},
+      order_type = #{orderType,jdbcType=TINYINT},
+      single_way = #{singleWay,jdbcType=TINYINT},
+      delivery_mode = #{deliveryMode,jdbcType=TINYINT},
+      order_time = #{orderTime,jdbcType=TIMESTAMP},
+      create_date = #{createDate,jdbcType=DATE},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=CHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      delete_flag = #{deleteFlag,jdbcType=TINYINT},
+      is_overdistance = #{isOverdistance,jdbcType=TINYINT},
+      is_overtime = #{isOvertime,jdbcType=TINYINT}
+    where w_id = #{wId,jdbcType=CHAR}
+  </update>
+  <select id="selectAllOrder" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"></include> from waybill_bc_list where update_time >= DATE_FORMAT(#{date},'%Y-%m-%d %h:%i:%s') and order_type = #{orderType}
+  </select>
+</mapper>

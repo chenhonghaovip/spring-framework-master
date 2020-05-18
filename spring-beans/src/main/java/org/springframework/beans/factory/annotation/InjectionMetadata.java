@@ -16,6 +16,14 @@
 
 package org.springframework.beans.factory.annotation;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.MutablePropertyValues;
+import org.springframework.beans.PropertyValues;
+import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.lang.Nullable;
+import org.springframework.util.ReflectionUtils;
+
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -25,15 +33,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.springframework.beans.MutablePropertyValues;
-import org.springframework.beans.PropertyValues;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.lang.Nullable;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Internal class for managing injection metadata.
@@ -214,6 +213,7 @@ public class InjectionMetadata {
 
 		/**
 		 * Either this or {@link #getResourceToInject} needs to be overridden.
+		 * 利用反射机制,设置当前需要注入字段为可访问，且为当前对象的该字段赋值
 		 */
 		protected void inject(Object target, @Nullable String requestingBeanName, @Nullable PropertyValues pvs)
 				throws Throwable {

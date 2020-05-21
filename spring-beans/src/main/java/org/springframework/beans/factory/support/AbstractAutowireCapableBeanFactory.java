@@ -525,8 +525,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (mbd.isSingleton()) {
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
-		//实际创建的交给createBeanInstance来完成，利用工厂方法或则构造器创建目标对象
-		//bean的生成，这里会使用默认的类生成器，包装成BeanWrapperImpl类，为了下面的populateBean方法的属性注入做准备
+		// 实际创建的交给createBeanInstance来完成，利用工厂方法或则构造器创建目标对象
+		// bean的生成，这里会使用默认的类生成器，包装成BeanWrapperImpl类，为了下面的populateBean方法的属性注入做准备
 		if (instanceWrapper == null) {
 			instanceWrapper = createBeanInstance(beanName, mbd, args);
 		}
@@ -1160,7 +1160,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	protected BeanWrapper createBeanInstance(String beanName, RootBeanDefinition mbd, @Nullable Object[] args) {
 		// Make sure bean class is actually resolved at this point.
-		//一样的，确保bean类实际上已经解析过了，可以实例化
+		// 一样的，确保bean类实际上已经解析过了，可以实例化
 		Class<?> beanClass = resolveBeanClass(mbd, beanName);
 		//确保class不为空，并且访问权限为public  所以注意如果你的Class不是public的，Spring给你创建不了对象
 		if (beanClass != null && !Modifier.isPublic(beanClass.getModifiers()) && !mbd.isNonPublicAccessAllowed()) {
@@ -1319,6 +1319,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 						getAccessControlContext());
 			}
 			else {
+				// 使用默认实例化策略对bean进行实例化，默认的实例化策略为CglibSubclassingInstantiationStrategy
 				beanInstance = getInstantiationStrategy().instantiate(mbd, beanName, parent);
 			}
 			BeanWrapper bw = new BeanWrapperImpl(beanInstance);
@@ -1411,7 +1412,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		if (!continueWithPropertyPopulation) {
 			return;
 		}
-
+  		// 获取BeanDefinition中设置的PropertyValues，这些PropertyValues来自对BeanDefinition的解析
 		PropertyValues pvs = (mbd.hasPropertyValues() ? mbd.getPropertyValues() : null);
 
 		// 根据Bean配置的依赖注入方式完成注入，默认是0，即不走以下逻辑，所有的依赖注入都需要在xml文件中有显式的配置
@@ -1433,7 +1434,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			// 结合注入后的配置，覆盖当前配置
 			pvs = newPvs;
 		}
-		// 容器是否注册了InstantiationAwareBeanPostProcessor
+		// 容器是否注册了InstantiationAwareBeanPostProcessor,因为需要填充属性用到的postProcessProperties（）方法在该接口中定义
 		boolean hasInstAwareBpps = hasInstantiationAwareBeanPostProcessors();
 		// 是否进行依赖检查
 		boolean needsDepCheck = (mbd.getDependencyCheck() != AbstractBeanDefinition.DEPENDENCY_CHECK_NONE);
@@ -1470,7 +1471,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (pvs != null) {
-			// 将pvs上所有的属性填充到BeanWrapper对应的Bean实例中，
+			// 将pvs上所有的属性填充到BeanWrapper对应的Bean实例中
 			// 注意到这一步，TestBean的student属性还是RuntimeBeanReference，即还未解析实际的Student实例
 			applyPropertyValues(beanName, mbd, bw, pvs);
 		}

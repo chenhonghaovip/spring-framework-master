@@ -120,6 +120,8 @@ public abstract class AopConfigUtils {
 
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 
+		// 判断ioc容器中是否包含该BeanDefinition定义，如果包含，则取出该BeanDefinition，并且判断ioc容器中的BeanDefinition定义的
+		// beanClassName是否和当前想要向ioc容器中注册的一致
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
 			BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
 			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {

@@ -4,10 +4,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -28,20 +25,20 @@ import javax.sql.DataSource;
 @Import({UserDao.class})
 @EnableTransactionManagement
 @MapperScan(value = {"test.mapper"})
-//@EnableAspectJAutoProxy
+@EnableAspectJAutoProxy
 @Configuration
 public class AOPConfig {
 	private static final String MAPPER_LOCATION = "classpath*:test/mybatis/*.xml";
 
     @Bean
-    public TestAspect testAspect(){
-        return new TestAspect();
-    }
-
-    @Bean
     public Fox fox(){
         return new Fox();
     }
+
+	@Bean
+	public TestAspect testAspect(){
+		return new TestAspect();
+	}
 
 	@Bean
 	public UserBeanPostProcessor userBeanPostProcessor(){

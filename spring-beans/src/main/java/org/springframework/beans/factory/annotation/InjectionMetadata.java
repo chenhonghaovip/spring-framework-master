@@ -89,6 +89,7 @@ public class InjectionMetadata {
 
 
 	public void checkConfigMembers(RootBeanDefinition beanDefinition) {
+		// 该bean中被@Autowired，@Value注解修饰的元素
 		Set<InjectedElement> checkedElements = new LinkedHashSet<>(this.injectedElements.size());
 		for (InjectedElement element : this.injectedElements) {
 			Member member = element.getMember();

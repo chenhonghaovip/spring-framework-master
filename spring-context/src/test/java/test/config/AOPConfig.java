@@ -6,6 +6,7 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.*;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import test.aspect.MyApplicationListener;
@@ -67,14 +68,14 @@ public class AOPConfig {
 
 	@Bean
 	@Primary
-	public SqlSessionTemplate sqlSessionTemplate() throws Exception {
-    	return new SqlSessionTemplate(masterSqlSessionFactory());
-	}
-
-	@Bean
-	@Primary
 	public DataSource masterDataSource() {
-		return new DriverManagerDataSource("jdbc:mysql://49.235.212.2:33066/clouds_waybill?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&allowMultiQueries=true","root","nzON899V7hYFuoUS");
+		DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource("jdbc:mysql://49.235.212.2:33066/clouds_waybill?useUnicode=true&characterEncoding=utf-8", "root", "nzON899V7hYFuoUS");
+		driverManagerDataSource.setDriverClassName("com.mysql.jdbc.Driver");
+		return driverManagerDataSource;
+	}
+	@Bean
+	public DataSourceTransactionManager dataSourceTransactionManager(DataSource dataSource){
+		return new DataSourceTransactionManager(dataSource);
 	}
 
 	@Bean
@@ -87,6 +88,12 @@ public class AOPConfig {
 		sessionFactory.setMapperLocations(
 				new PathMatchingResourcePatternResolver().getResources(AOPConfig.MAPPER_LOCATION));
 		return sessionFactory.getObject();
+	}
+
+	@Bean
+	@Primary
+	public SqlSessionTemplate sqlSessionTemplate() throws Exception {
+		return new SqlSessionTemplate(masterSqlSessionFactory());
 	}
 
 

@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import test.config.AOPConfig;
 import test.dto.Fox;
+import test.dto.UserDao;
 
 /**
  * @author chenhonghao
@@ -15,6 +16,9 @@ public class TestMain {
     public void test11(){
         AnnotationConfigApplicationContext an = new AnnotationConfigApplicationContext(AOPConfig.class);
         Fox fox = (Fox) an.getBean("fox");
+
+		UserDao userDao = (UserDao) an.getBean("userDao");
+		userDao.test();
 //		System.out.println("ioc容器中所有bean实例开始");
 //		Arrays.stream(an.getBeanDefinitionNames()).forEach(System.out::println);
 //		System.out.println("ioc容器中所有bean实例结束");

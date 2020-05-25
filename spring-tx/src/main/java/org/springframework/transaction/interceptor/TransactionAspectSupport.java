@@ -333,6 +333,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		// 切点标识
 		final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
 
+		// 标准声明式事务：如果事务属性为空 或者 非回调偏向的事务管理器
 		if (txAttr == null || !(tm instanceof CallbackPreferringPlatformTransactionManager)) {
 			// Standard transaction demarcation with getTransaction and commit/rollback calls.
 			// 这里是根据事务的传播行为属性去判断是否创建一个事务，包含了tm和TransactionStatus
@@ -370,7 +371,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			commitTransactionAfterReturning(txInfo);
 			return retVal;
 		}
-
+		// 编程式事务：（回调偏向）
 		else {
 			final ThrowableHolder throwableHolder = new ThrowableHolder();
 
@@ -547,6 +548,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			@Nullable TransactionAttribute txAttr, final String joinpointIdentification) {
 
 		// If no name specified, apply method identification as transaction name.
+		// 如果还没有定义名字，把连接点的ID定义成事务的名称
 		if (txAttr != null && txAttr.getName() == null) {
 			txAttr = new DelegatingTransactionAttribute(txAttr) {
 				@Override
@@ -569,7 +571,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				}
 			}
 		}
-		// 返回一个TransactionInfo对象
+		// 构造一个TransactionInfo事务信息对象，绑定当前线程：ThreadLocal<TransactionInfo>。
 		return prepareTransactionInfo(tm, txAttr, joinpointIdentification, status);
 	}
 
@@ -606,6 +608,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		// We always bind the TransactionInfo to the thread, even if we didn't create
 		// a new transaction here. This guarantees that the TransactionInfo stack
 		// will be managed correctly even if no transaction was created by this aspect.
+		// 绑定当前线程：ThreadLocal<TransactionInfo>。
 		txInfo.bindToThread();
 		return txInfo;
 	}

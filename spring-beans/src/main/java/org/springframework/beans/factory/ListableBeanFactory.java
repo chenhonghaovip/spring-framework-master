@@ -16,12 +16,12 @@
 
 package org.springframework.beans.factory;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
-
 import org.springframework.beans.BeansException;
 import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
+
+import java.lang.annotation.Annotation;
+import java.util.Map;
 
 /**
  * Extension of the {@link BeanFactory} interface to be implemented by bean factories
@@ -58,6 +58,8 @@ import org.springframework.lang.Nullable;
 public interface ListableBeanFactory extends BeanFactory {
 
 	/**
+	 * ioc容器中是否包含该bean定义
+	 *
 	 * Check if this bean factory contains a bean definition with the given name.
 	 * <p>Does not consider any hierarchy this factory may participate in,
 	 * and ignores any singleton beans that have been registered by
@@ -69,6 +71,8 @@ public interface ListableBeanFactory extends BeanFactory {
 	boolean containsBeanDefinition(String beanName);
 
 	/**
+	 * ioc容器中bean定义的数量
+	 *
 	 * Return the number of beans defined in the factory.
 	 * <p>Does not consider any hierarchy this factory may participate in,
 	 * and ignores any singleton beans that have been registered by
@@ -78,6 +82,8 @@ public interface ListableBeanFactory extends BeanFactory {
 	int getBeanDefinitionCount();
 
 	/**
+	 * ioc容器中所有bean定义的名称
+	 *
 	 * Return the names of all beans defined in this factory.
 	 * <p>Does not consider any hierarchy this factory may participate in,
 	 * and ignores any singleton beans that have been registered by
@@ -88,6 +94,8 @@ public interface ListableBeanFactory extends BeanFactory {
 	String[] getBeanDefinitionNames();
 
 	/**
+	 * ioc容器中该类型的bean定义名称
+	 *
 	 * Return the names of beans matching the given type (including subclasses),
 	 * judging from either bean definitions or the value of {@code getObjectType}
 	 * in the case of FactoryBeans.
@@ -117,6 +125,8 @@ public interface ListableBeanFactory extends BeanFactory {
 	String[] getBeanNamesForType(ResolvableType type);
 
 	/**
+	 * ioc容器中该类型的bean定义名称
+	 *
 	 * Return the names of beans matching the given type (including subclasses),
 	 * judging from either bean definitions or the value of {@code getObjectType}
 	 * in the case of FactoryBeans.
@@ -243,6 +253,8 @@ public interface ListableBeanFactory extends BeanFactory {
 			throws BeansException;
 
 	/**
+	 * 根据注解查找相关BeanName数组
+	 *
 	 * Find all names of beans which are annotated with the supplied {@link Annotation}
 	 * type, without creating corresponding bean instances yet.
 	 * <p>Note that this method considers objects created by FactoryBeans, which means
@@ -256,6 +268,8 @@ public interface ListableBeanFactory extends BeanFactory {
 	String[] getBeanNamesForAnnotation(Class<? extends Annotation> annotationType);
 
 	/**
+	 * 根据注解查找相关Bean的Map集合
+	 *
 	 * Find all beans which are annotated with the supplied {@link Annotation} type,
 	 * returning a Map of bean names with corresponding bean instances.
 	 * <p>Note that this method considers objects created by FactoryBeans, which means
@@ -271,6 +285,8 @@ public interface ListableBeanFactory extends BeanFactory {
 	Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) throws BeansException;
 
 	/**
+	 * 查找一个Bean上的注解
+	 *
 	 * Find an {@link Annotation} of {@code annotationType} on the specified bean,
 	 * traversing its interfaces and super classes if no annotation can be found on
 	 * the given class itself, as well as checking the bean's factory method (if any).

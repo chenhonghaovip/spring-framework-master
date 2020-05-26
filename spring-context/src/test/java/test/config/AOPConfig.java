@@ -70,7 +70,7 @@ public class AOPConfig {
 	@Primary
 	public DataSource masterDataSource() {
 		DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource("jdbc:mysql://49.235.212.2:33066/clouds_waybill?useUnicode=true&characterEncoding=utf-8", "root", "nzON899V7hYFuoUS");
-		driverManagerDataSource.setDriverClassName("com.mysql.jdbc.Driver");
+//		driverManagerDataSource.setDriverClassName("com.mysql.jdbc.Driver");
 		return driverManagerDataSource;
 	}
 	@Bean

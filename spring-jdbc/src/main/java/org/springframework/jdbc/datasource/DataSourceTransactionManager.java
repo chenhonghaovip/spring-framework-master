@@ -231,7 +231,9 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 	@Override
 	protected Object doGetTransaction() {
 		DataSourceTransactionObject txObject = new DataSourceTransactionObject();
+		// 是否允许使用保存点
 		txObject.setSavepointAllowed(isNestedTransactionAllowed());
+		// 从当前线程中获取ConnectionHolder对象
 		ConnectionHolder conHolder =
 				(ConnectionHolder) TransactionSynchronizationManager.getResource(obtainDataSource());
 		txObject.setConnectionHolder(conHolder, false);
@@ -256,16 +258,19 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			// 如果事务还没有connection或者connection在事务同步状态，重置新的connectionHolder
 			if (!txObject.hasConnectionHolder() ||
 					txObject.getConnectionHolder().isSynchronizedWithTransaction()) {
+				// 重新从数据源获取连接
 				Connection newCon = obtainDataSource().getConnection();
 				if (logger.isDebugEnabled()) {
 					logger.debug("Acquired Connection [" + newCon + "] for JDBC transaction");
 				}
-				// 重置新的connectionHolder
+				// 重新设置DataSourceTransactionObject的ConnectionHolder对象
 				txObject.setConnectionHolder(new ConnectionHolder(newCon), true);
 			}
 
-			//设置新的连接为事务同步中
+			//设置新的连接为事务同步中，设置同步锁标记
 			txObject.getConnectionHolder().setSynchronizedWithTransaction(true);
+
+			// 从ConnectionHolder对象中获取连接
 			con = txObject.getConnectionHolder().getConnection();
 
 			//conn设置事务隔离级别,只读
@@ -289,6 +294,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			// 设置connection持有者的事务开启状态
 			txObject.getConnectionHolder().setTransactionActive(true);
 
+			// 设置超时时间(如果超时时间不等于默认超时时间)
 			int timeout = determineTimeout(definition);
 			if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
 				// 设置超时秒数
@@ -298,6 +304,8 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 			// Bind the connection holder to the thread.
 			// 绑定connection持有者到当前线程
 			if (txObject.isNewConnectionHolder()) {
+				// 即TransactionSynchronizationManager类的resources对象:
+				// 该对象保存每个事物线程对应的connection或session等类型的资源
 				TransactionSynchronizationManager.bindResource(obtainDataSource(), txObject.getConnectionHolder());
 			}
 		}

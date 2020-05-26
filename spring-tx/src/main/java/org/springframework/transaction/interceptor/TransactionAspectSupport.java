@@ -330,7 +330,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		// 获取PlatformTransactionManager的实现类，底层事务的处理实现都是由PlatformTransactionManager的实现类实现的，
 		// 比如 DataSourceTransactionManager 管理 JDBC 的 Connection。
 		final PlatformTransactionManager tm = determineTransactionManager(txAttr);
-		// 切点标识
+		// 切点标识,获取目标类全限定类名+连接点方法名
 		final String joinpointIdentification = methodIdentification(method, targetClass, txAttr);
 
 		// 标准声明式事务：如果事务属性为空 或者 非回调偏向的事务管理器
@@ -548,7 +548,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			@Nullable TransactionAttribute txAttr, final String joinpointIdentification) {
 
 		// If no name specified, apply method identification as transaction name.
-		// 如果还没有定义名字，把连接点的ID定义成事务的名称
+		// 1.如果还没有定义名字，把连接点的ID定义成事务的名称
 		if (txAttr != null && txAttr.getName() == null) {
 			txAttr = new DelegatingTransactionAttribute(txAttr) {
 				@Override
@@ -558,10 +558,11 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			};
 		}
 
+		// 2.获取TransactionStatus对象
 		TransactionStatus status = null;
 		if (txAttr != null) {
 			if (tm != null) {
-				// 获取事务状态，判断各种属性
+				// 重点: 根据指定的传播行为，返回当前活动的事务或创建新事务。
 				status = tm.getTransaction(txAttr);
 			}
 			else {
@@ -571,7 +572,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 				}
 			}
 		}
-		// 构造一个TransactionInfo事务信息对象，绑定当前线程：ThreadLocal<TransactionInfo>。
+		// 3.构造一个TransactionInfo事务信息对象，绑定当前线程：ThreadLocal<TransactionInfo>。
 		return prepareTransactionInfo(tm, txAttr, joinpointIdentification, status);
 	}
 
@@ -587,7 +588,9 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 			@Nullable TransactionAttribute txAttr, String joinpointIdentification,
 			@Nullable TransactionStatus status) {
 
+		// 创建TransactionInfo对象
 		TransactionInfo txInfo = new TransactionInfo(tm, txAttr, joinpointIdentification);
+		// 如果事物标签不为空,则将TransactionStatus对象赋予TransactionInfo
 		if (txAttr != null) {
 			// We need a transaction for this method...
 			if (logger.isTraceEnabled()) {
@@ -609,6 +612,7 @@ public abstract class TransactionAspectSupport implements BeanFactoryAware, Init
 		// a new transaction here. This guarantees that the TransactionInfo stack
 		// will be managed correctly even if no transaction was created by this aspect.
 		// 绑定当前线程：ThreadLocal<TransactionInfo>。
+		// 这里:不论是否开启了新的事物,都将TransactionInfo绑定到当前线程,以保证TransactionInfo堆栈的完整性。
 		txInfo.bindToThread();
 		return txInfo;
 	}

@@ -333,32 +333,40 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			throws TransactionException {
 
 		// Use defaults if no transaction definition given.
-		// 这里是开启一个事务，不同的事务类型(JPA  kafka jta等有不同的实现)
+		// 这里是开启一个事务，不同的事务类型(JPA  kafka jta等有不同的实现)，获取事务标签属性
 		TransactionDefinition def = (definition != null ? definition : TransactionDefinition.withDefaults());
 
+		// 1.获取当前事物对象(如果当前已经存在了事物)，创建了一个DataSourceTransactionObject对象
 		Object transaction = doGetTransaction();
 		boolean debugEnabled = logger.isDebugEnabled();
 
-		// 判断当前是否存在事务，如果存在则进行一些判断和操作
+		// 判断当前是否存在事务(该事务拥有数据库连接并且连接中的事务还是活着的)，如果存在则进行一些判断和操作
+		// 重点:
+		// 如果当前已经存在启动的事物,则根据本次要新建的事物传播特性进行评估,以决定对新事物的后续处理
 		if (isExistingTransaction(transaction)) {
 			// Existing transaction found -> check propagation behavior to find out how to behave.
 			// 根据不同传播机制不同处理
 			return handleExistingTransaction(def, transaction, debugEnabled);
 		}
+		// 3.如果当前不存在事务
 
-		// 设置超时
+		// // 3.1 如果事物定义的超时时间,小于默认的超时时间,抛出异常,TransactionDefinition.TIMEOUT_DEFAULT --> -1
 		// Check definition settings for new transaction.
 		if (def.getTimeout() < TransactionDefinition.TIMEOUT_DEFAULT) {
 			throw new InvalidTimeoutException("Invalid transaction timeout", def.getTimeout());
 		}
 
-		// 不存在事务，但上面讲了PROPAGATION_MANDATORY要求必须已有事务，则抛出异常
+		// 若是不存在事务，但上面讲了PROPAGATION_MANDATORY要求必须已有事务，则抛出异常
 		// No existing transaction found -> check propagation behavior to find out how to proceed.
 		if (def.getPropagationBehavior() == TransactionDefinition.PROPAGATION_MANDATORY) {
 			throw new IllegalTransactionStateException(
 					"No existing transaction found for transaction marked with propagation 'mandatory'");
 		}
-		// 后续其他属性都需要去新建一个事务
+
+		// 3.3 如果事物传播特性为以下三种,则创建新的事物:
+		// PROPAGATION_REQUIRED --> 如果当前没有事物，则新建一个事物；如果已经存在一个事物，则加入到这个事物中。
+		// PROPAGATION_REQUIRES_NEW --> 新建事物，如果当前已经存在事物，则挂起当前事物。
+		// PROPAGATION_NESTED --> 如果当前存在事物，则在嵌套事物内执行；如果当前没有事物，则与PROPAGATION_REQUIRED传播特性相同
 		else if (def.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRED ||
 				def.getPropagationBehavior() == TransactionDefinition.PROPAGATION_REQUIRES_NEW ||
 				def.getPropagationBehavior() == TransactionDefinition.PROPAGATION_NESTED) {
@@ -369,6 +377,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			try {
 				// 是否需要新开启同步// 开启
 				boolean newSynchronization = (getTransactionSynchronization() != SYNCHRONIZATION_NEVER);
+				// 创建一个DefaultTransactionStatus对象
 				DefaultTransactionStatus status = newTransactionStatus(
 						def, transaction, true, newSynchronization, debugEnabled, suspendedResources);
 				// 开始事务
@@ -382,6 +391,10 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 				throw ex;
 			}
 		}
+		// 3.4 对于其他的三种传播特性,无需开启新的事物
+		// PROPAGATION_SUPPORTS --> 支持当前事物，如果当前没有事物，则以非事物方式执行
+		// PROPAGATION_NOT_SUPPORTED --> 以非事物方式执行，如果当前存在事物，则挂起当前事物
+		// PROPAGATION_NEVER --> 以非事物方式执行，如果当前存在事物，则抛出异常
 		else {
 			// Create "empty" transaction: no actual transaction, but potentially synchronization.
 			if (def.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT && logger.isWarnEnabled()) {
@@ -532,12 +545,17 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 	 */
 	protected void prepareSynchronization(DefaultTransactionStatus status, TransactionDefinition definition) {
 		if (status.isNewSynchronization()) {
+			// 设置事物激活状态
 			TransactionSynchronizationManager.setActualTransactionActive(status.hasTransaction());
+			// 设置事物隔离级别
 			TransactionSynchronizationManager.setCurrentTransactionIsolationLevel(
 					definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT ?
 							definition.getIsolationLevel() : null);
+			// 设置事物只读属性
 			TransactionSynchronizationManager.setCurrentTransactionReadOnly(definition.isReadOnly());
+			// 设置事物名称
 			TransactionSynchronizationManager.setCurrentTransactionName(definition.getName());
+			// 激活当前线程的事务同步。事务管理器在事务开始时调用。
 			TransactionSynchronizationManager.initSynchronization();
 		}
 	}

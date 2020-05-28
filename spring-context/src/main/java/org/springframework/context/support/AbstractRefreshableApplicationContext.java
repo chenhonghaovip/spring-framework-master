@@ -124,6 +124,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	protected final void refreshBeanFactory() throws BeansException {
 		// 如果已经存在BeanFactory，存在则销毁所有Beans，并且关闭BeanFactory
 		if (hasBeanFactory()) {
+			// 销毁所有 Bean，关闭 BeanFactory
 			destroyBeans();
 			closeBeanFactory();
 		}

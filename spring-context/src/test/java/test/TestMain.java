@@ -3,6 +3,7 @@ package test;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import test.config.AOPConfig;
+import test.config.AsyncTask;
 import test.dto.Fox;
 
 /**
@@ -28,6 +29,8 @@ public class TestMain {
 		// 1、进入到CglibAopProxy中的intercept方法中
         fox.sout();
 		Object myFactoryBean = an.getBean("myFactoryBean");
+		AsyncTask async = (AsyncTask) an.getBean("asyncTask");
+		async.doTaskOne();
 		an.close();
     }
 }

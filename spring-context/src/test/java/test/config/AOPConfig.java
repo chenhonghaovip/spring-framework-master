@@ -8,6 +8,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.support.TransactionTemplate;
 import test.aspect.MyApplicationListener;
@@ -24,6 +25,7 @@ import javax.sql.DataSource;
  * @author chenhonghao
  * @date 2020-03-20 15:51
  */
+@EnableAsync
 @Import({UserDao.class})
 @EnableTransactionManagement
 @MapperScan(value = {"test.mapper"})
@@ -100,6 +102,11 @@ public class AOPConfig {
 	@Bean
 	public TransactionTemplate transactionTemplate(DataSourceTransactionManager dataSourceTransactionManager){
 		return new TransactionTemplate(dataSourceTransactionManager);
+	}
+
+	@Bean
+	public AsyncTask asyncTask(){
+    	return new AsyncTask();
 	}
 
 

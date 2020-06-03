@@ -1671,7 +1671,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// 也就是说，beanInstance是FactoryBean类型，同时name不是以&作为前缀
 		Object object = null;
 		if (mbd == null) {
-			// 尝试从缓存中获取bean
+			// 尝试从factoryBeanObjectCache缓存中获取bean,专门缓存FactoryBean中getObject()方法创建的对象实例
 			// 先到FactoryBean生产bean对象的缓存factoryBeanObjectCache中去取，如果没有的话则用FactoryBean去生产一个
 			object = getCachedObjectForFactoryBean(beanName);
 		}
@@ -1680,6 +1680,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			// 获取对应的FactoryBean
 			FactoryBean<?> factory = (FactoryBean<?>) beanInstance;
 			// Caches object obtained from FactoryBean if it is a singleton.
+			// ioc容器中包含该beanName的BeanDefinition定义
 			if (mbd == null && containsBeanDefinition(beanName)) {
 				mbd = getMergedLocalBeanDefinition(beanName);
 			}

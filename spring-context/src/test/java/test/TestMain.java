@@ -27,6 +27,7 @@ public class TestMain {
 
 		// 1、进入到CglibAopProxy中的intercept方法中
         fox.sout();
-        an.close();
+		Object myFactoryBean = an.getBean("myFactoryBean");
+		an.close();
     }
 }

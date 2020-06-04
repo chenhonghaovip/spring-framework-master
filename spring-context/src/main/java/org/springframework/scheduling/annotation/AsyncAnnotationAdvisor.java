@@ -16,15 +16,7 @@
 
 package org.springframework.scheduling.annotation;
 
-import java.lang.annotation.Annotation;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.function.Supplier;
-
 import org.aopalliance.aop.Advice;
-
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.support.AbstractPointcutAdvisor;
@@ -36,6 +28,13 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.function.SingletonSupplier;
+
+import java.lang.annotation.Annotation;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 
 /**
  * Advisor that activates asynchronous method execution through the {@link Async}
@@ -95,6 +94,7 @@ public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements B
 	public AsyncAnnotationAdvisor(
 			@Nullable Supplier<Executor> executor, @Nullable Supplier<AsyncUncaughtExceptionHandler> exceptionHandler) {
 
+		// 拦截器拦截Async、javax.ejb.Asynchronous注解
 		Set<Class<? extends Annotation>> asyncAnnotationTypes = new LinkedHashSet<>(2);
 		asyncAnnotationTypes.add(Async.class);
 		try {
@@ -104,7 +104,9 @@ public class AsyncAnnotationAdvisor extends AbstractPointcutAdvisor implements B
 		catch (ClassNotFoundException ex) {
 			// If EJB 3.1 API not present, simply ignore.
 		}
+		// 构建增强器为AnnotationAsyncExecutionInterceptor
 		this.advice = buildAdvice(executor, exceptionHandler);
+		//
 		this.pointcut = buildPointcut(asyncAnnotationTypes);
 	}
 

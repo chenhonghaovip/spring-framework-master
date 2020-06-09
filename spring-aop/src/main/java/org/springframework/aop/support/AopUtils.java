@@ -231,6 +231,7 @@ public abstract class AopUtils {
 		}
 
 		Set<Class<?>> classes = new LinkedHashSet<>();
+		// 先判断目标类是否是Proxy，如果不是则加入用户Class，即被动态代理的class，以便查找真正的Class中是否符合判断条件
 		if (!Proxy.isProxyClass(targetClass)) {
 			classes.add(ClassUtils.getUserClass(targetClass));
 		}
@@ -277,6 +278,7 @@ public abstract class AopUtils {
 		if (advisor instanceof IntroductionAdvisor) {
 			return ((IntroductionAdvisor) advisor).getClassFilter().matches(targetClass);
 		}
+		// 对于@Aspect的切面，是这段代码在生效,判断切点能否使用在该方法上
 		else if (advisor instanceof PointcutAdvisor) {
 			PointcutAdvisor pca = (PointcutAdvisor) advisor;
 			return canApply(pca.getPointcut(), targetClass, hasIntroductions);

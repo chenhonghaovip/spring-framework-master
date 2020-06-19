@@ -394,6 +394,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 			});
 
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
+				// 判断是否是桥接方法，如果是的话就返回这个方法
 				Method bridgedMethod = BridgeMethodResolver.findBridgedMethod(method);
 				if (!BridgeMethodResolver.isVisibilityBridgeMethodPair(method, bridgedMethod)) {
 					return;

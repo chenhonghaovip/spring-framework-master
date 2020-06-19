@@ -26,7 +26,7 @@ import javax.sql.DataSource;
  * @date 2020-03-20 15:51
  */
 @EnableAsync
-@Import({UserDao.class})
+@Import({UserDao.class,InterceptorRegistrar.class})
 @EnableTransactionManagement
 @MapperScan(value = {"test.mapper"})
 @EnableAspectJAutoProxy

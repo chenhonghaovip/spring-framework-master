@@ -172,7 +172,7 @@ class ConfigurationClassParser {
 			}
 		}
 
-		//字面理解：处理延迟导入的javabean
+		//字面理解：处理延迟导入的javabean，比如通过自动装配机制加载的配置类，都会放入到deferredImportSelectors这个中
 		//parse方法，把被处理的类实现DeferredImportSelector接口，加入deferredImportSelectors集合中，
 		//处理deferredImportSelectors集合种类
 		this.deferredImportSelectorHandler.process();
@@ -214,7 +214,7 @@ class ConfigurationClassParser {
 			return;
 		}
 
-		// 在这里处理Configuration重复import
+		// 在这里处理Configuration重复import,判断这个类有没有被别的@Import
 		// configClass为对象，在ConfigurationClass类中重写equals()和hashCode()方法，最终通过配置类全路径名称作为key来获取map中的值，判断LinkedHashMap是否存在该配置类
 		ConfigurationClass existingClass = this.configurationClasses.get(configClass);
 		if (existingClass != null) {
@@ -237,6 +237,10 @@ class ConfigurationClassParser {
 
 		// Recursively process the configuration class and its superclass hierarchy.
 		// 递归解析
+		// 处理配置类，由于配置类可能存在父类(若父类的全类名是以java开头的，则除外)，所有需要将configClass变成sourceClass去解析，然后返回sourceClass的父类。
+		// 如果此时父类为空，则不会进行while循环去解析，如果父类不为空，则会循环的去解析父类
+		// SourceClass的意义：简单的包装类，目的是为了以统一的方式去处理带有注解的类，不管这些类是如何加载的
+		// 如果无法理解，可以把它当做一个黑盒，不会影响看spring源码的主流程
 		SourceClass sourceClass = asSourceClass(configClass);
 		do {
 			//解析注解信息，解析各种注解， 扫描指定包下的类，并注册进DefaultListableBeanFactory
@@ -318,6 +322,7 @@ class ConfigurationClassParser {
 
 		// Process any @Import annotations
 		// 处理@Import注解(1.实现ImportSelector的类  2、实现ImportBeanDefinitionRegistrar  3、普通类)
+		// 处理 any @Import annotations  我们Spring.factories就是在这一部分会解析出org.springframework.boot.autoconfigure.EnableAutoConfigurationImportSelector
 		processImports(configClass, sourceClass, getImports(sourceClass), true);
 
 		// Process any @ImportResource annotations
@@ -587,6 +592,7 @@ class ConfigurationClassParser {
 						ParserStrategyUtils.invokeAwareMethods(
 								selector, this.environment, this.resourceLoader, this.registry);
 						// 判断是否DeferredImportSelector,延迟处理
+						// @EnableAutoConfiguration引入的AutoConfigurationImportSelector继承了DeferredImportSelector，所以会被延迟加载
 						if (selector instanceof DeferredImportSelector) {
 							this.deferredImportSelectorHandler.handle(configClass, (DeferredImportSelector) selector);
 						}
@@ -834,10 +840,12 @@ class ConfigurationClassParser {
 
 		public void processGroupImports() {
 			for (DeferredImportSelectorGrouping grouping : this.groupings.values()) {
+				// 获取当前延迟加载配置类所引入的所有的bean名称和配置信息，准备进行注入操作
 				grouping.getImports().forEach(entry -> {
 					ConfigurationClass configurationClass = this.configurationClasses.get(
 							entry.getMetadata());
 					try {
+						// 调用processImports方法将延迟加载的bean加载到ioc容器中
 						processImports(configurationClass, asSourceClass(configurationClass),
 								asSourceClasses(entry.getImportClassName()), false);
 					}

@@ -349,7 +349,10 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 		do {
 			/**
 			 * 核心方法解析带有@Controller/@Import/@ImportResource/@ComponentScan/@ComponentScans/@Bean的beanDefinition
-			 * 开始扫描/注册包下的类
+			 * 解析配置类，在此处会解析配置类上的注解(ComponentScan扫描出的类，@Import注册的类，以及@Bean方法定义的类
+			 * 注意：这一步只会将加了@Configuration注解以及通过@ComponentScan注解扫描的类才会加入到BeanDefinitionMap中
+			 * 通过其他注解(例如@Import、@Bean)的方式，在parse()方法这一步并不会将其解析为BeanDefinition放入到BeanDefinitionMap中，而是先解析成ConfigurationClass类
+			 * 真正放入到map中是在下面的this.reader.loadBeanDefinitions()方法中实现的
 			 */
 			parser.parse(candidates);
 			// 校验 配置类不能使final的，因为需要使用CGLIB生成代理对象，见postProcessBeanFactory方法
@@ -368,6 +371,9 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			}
 			// 在这里统一处理,没有注册的进行注册
 			// 加载bean定义信息，主要实现将@Configuration @Import @ImportResource @ImportRegistrar转化为 BeanDefinition
+			// 实际上经过上一步的parse()后，解析出来的bean已经放入到BeanDefinition中了，但是由于这些bean可能会引入新的bean，
+			// 例如实现了ImportBeanDefinitionRegistrar或者ImportSelector接口的bean，或者bean中存在被@Bean注解的方法
+			// 因此需要执行一次loadBeanDefinition()，这样就会执行ImportBeanDefinitionRegistrar或者ImportSelector接口的方法或者@Bean注释的方法
 			this.reader.loadBeanDefinitions(configClasses);
 			// 将configClasses加入到已解析alreadyParsed中
 			alreadyParsed.addAll(configClasses);

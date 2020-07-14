@@ -1,7 +1,7 @@
 package test.dto;
 
 import groovy.util.logging.Slf4j;
-import org.springframework.beans.factory.SmartFactoryBean;
+import org.springframework.beans.factory.FactoryBean;
 
 /**
  * Spring 中有两种类型的Bean，一种是普通Bean，另一种是工厂Bean
@@ -15,7 +15,7 @@ import org.springframework.beans.factory.SmartFactoryBean;
  * @date 2020-01-20 19:52
  */
 @Slf4j
-public class MyFactoryBean implements SmartFactoryBean<Apple> {
+public class MyFactoryBean implements FactoryBean<Apple> {
     @Override
     public Apple getObject() {
         return new Apple();
@@ -26,8 +26,8 @@ public class MyFactoryBean implements SmartFactoryBean<Apple> {
         return Apple.class;
     }
 
-	@Override
-	public boolean isEagerInit() {
-		return true;
-	}
+//	@Override
+//	public boolean isEagerInit() {
+//		return true;
+//	}
 }

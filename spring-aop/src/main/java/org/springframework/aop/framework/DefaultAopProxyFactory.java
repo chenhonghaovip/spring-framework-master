@@ -48,6 +48,9 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+		// config.isOptimize()是否进行优化，默认是false
+		// config.isProxyTargetClass()就是ProxyConfig的proxyTargetClass属性，是否强制使用cglib代理
+		// hasNoUserSuppliedProxyInterfaces(config)目标类没有实现接口，或者有但是是接口类型是SpringProxy
 		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
 			Class<?> targetClass = config.getTargetClass();
 			if (targetClass == null) {
@@ -55,6 +58,7 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 						"Either an interface or a target is required for proxy creation.");
 			}
 			// 当代理对象实现接口时，使用jdk动态代理
+			// 如果目标类是Proxy类型 则还是使用JDK的方式生成代理对象
 			if (targetClass.isInterface() || Proxy.isProxyClass(targetClass)) {
 				return new JdkDynamicAopProxy(config);
 			}

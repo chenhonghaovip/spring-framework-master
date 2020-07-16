@@ -124,6 +124,7 @@ public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSu
 	 * @see AopUtils#canApply(Advisor, Class)
 	 */
 	protected boolean isEligible(Class<?> targetClass) {
+		// 从eligibleBeans中获取当前类，如果存在，说明之前已经判断过该类是否需要被增强
 		Boolean eligible = this.eligibleBeans.get(targetClass);
 		if (eligible != null) {
 			return eligible;
@@ -131,6 +132,7 @@ public abstract class AbstractAdvisingBeanPostProcessor extends ProxyProcessorSu
 		if (this.advisor == null) {
 			return false;
 		}
+		// 判断当前bean是否能被增强匹配，并且存入到eligibleBeans中
 		eligible = AopUtils.canApply(this.advisor, targetClass);
 		this.eligibleBeans.put(targetClass, eligible);
 		return eligible;

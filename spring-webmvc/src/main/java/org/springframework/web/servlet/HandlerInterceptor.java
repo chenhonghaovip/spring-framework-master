@@ -16,11 +16,11 @@
 
 package org.springframework.web.servlet;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.lang.Nullable;
 import org.springframework.web.method.HandlerMethod;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Workflow interface that allows for customized handler execution chains.
@@ -72,10 +72,13 @@ import org.springframework.web.method.HandlerMethod;
  * @see org.springframework.web.servlet.i18n.LocaleChangeInterceptor
  * @see org.springframework.web.servlet.theme.ThemeChangeInterceptor
  * @see javax.servlet.Filter
+ * 拦截器
  */
 public interface HandlerInterceptor {
 
 	/**
+	 * 预处理方法，实现处理器的预处理
+	 * 返回值：true:表示继续流程  false：表示中断流程，不会继续调用其它的拦截器和处理器
 	 * Intercept the execution of a handler. Called after HandlerMapping determined
 	 * an appropriate handler object, but before HandlerAdapter invokes the handler.
 	 * <p>DispatcherServlet processes a handler in an execution chain, consisting

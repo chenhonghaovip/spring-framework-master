@@ -109,5 +109,13 @@ public class AOPConfig {
     	return new AsyncTask();
 	}
 
+	@Configuration
+	static class Test{
+		@Bean
+		public AsyncTask asyncTask(){
+			return new AsyncTask();
+		}
+	}
+
 
 }

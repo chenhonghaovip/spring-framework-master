@@ -367,6 +367,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	@Nullable
 	private <T> T resolveBean(ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) {
+		// 在当前容器中尝试创建该类型的bean
 		NamedBeanHolder<T> namedBean = resolveNamedBean(requiredType, args, nonUniqueAsNull);
 		if (namedBean != null) {
 			return namedBean.getBeanInstance();
@@ -1087,14 +1088,18 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	@Override
 	public <T> NamedBeanHolder<T> resolveNamedBean(Class<T> requiredType) throws BeansException {
+		// 尝试创建bean实例，封装到NamedBeanHolder返回
 		NamedBeanHolder<T> namedBean = resolveNamedBean(ResolvableType.forRawClass(requiredType), null, false);
+		// 说明当前容器中该类型的bean定义不存在，无法创建
 		if (namedBean != null) {
 			return namedBean;
 		}
+		// 获取当前容器的父容器，递归使用父容器创建，直到创建成功返回实例信息或者都不存在定义时，返回
 		BeanFactory parent = getParentBeanFactory();
 		if (parent instanceof AutowireCapableBeanFactory) {
 			return ((AutowireCapableBeanFactory) parent).resolveNamedBean(requiredType);
 		}
+		// 父子容器都不存在该类型的BeanDefinition时，抛出错误信息
 		throw new NoSuchBeanDefinitionException(requiredType);
 	}
 
@@ -1104,8 +1109,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			ResolvableType requiredType, @Nullable Object[] args, boolean nonUniqueAsNull) throws BeansException {
 
 		Assert.notNull(requiredType, "Required type must not be null");
+		// 在当前容器中获取该类型的beanName
 		String[] candidateNames = getBeanNamesForType(requiredType);
-
+		// 如果当前容器中存在该类型的beanDefinition定义
 		if (candidateNames.length > 1) {
 			List<String> autowireCandidates = new ArrayList<>(candidateNames.length);
 			for (String beanName : candidateNames) {
@@ -1117,7 +1123,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				candidateNames = StringUtils.toStringArray(autowireCandidates);
 			}
 		}
-
+		// 创建bean实例，并且放入到NamedBeanHolder中返回
 		if (candidateNames.length == 1) {
 			String beanName = candidateNames[0];
 			return new NamedBeanHolder<>(beanName, (T) getBean(beanName, requiredType.toClass(), args));
@@ -1148,7 +1154,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				throw new NoUniqueBeanDefinitionException(requiredType, candidates.keySet());
 			}
 		}
-
+		// 如果当前容器中不存在当前类型的bean定义，返回null
 		return null;
 	}
 

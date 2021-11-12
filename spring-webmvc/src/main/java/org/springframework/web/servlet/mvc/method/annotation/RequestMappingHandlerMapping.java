@@ -16,17 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.MergedAnnotation;
@@ -51,6 +40,13 @@ import org.springframework.web.servlet.mvc.condition.ConsumesRequestCondition;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Creates {@link RequestMappingInfo} instances from type and method-level
@@ -222,10 +218,13 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 	@Override
 	@Nullable
 	protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
+		// 创建method对应的RequestMappingInfo信息
 		RequestMappingInfo info = createRequestMappingInfo(method);
 		if (info != null) {
+			// 创建class对应的RequestMappingInfo信息
 			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
 			if (typeInfo != null) {
+				// 合并class和method的RequestMappingInfo
 				info = typeInfo.combine(info);
 			}
 			String prefix = getPathPrefix(handlerType);

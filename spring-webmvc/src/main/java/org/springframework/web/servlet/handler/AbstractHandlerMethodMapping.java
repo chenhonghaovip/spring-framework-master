@@ -16,24 +16,6 @@
 
 package org.springframework.web.servlet.handler;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -47,6 +29,15 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Abstract base class for {@link HandlerMapping} implementations that define
@@ -207,8 +198,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * @see #handlerMethodsInitialized
 	 */
 	protected void initHandlerMethods() {
+		// 遍历容器中所有的bean对应的name
 		for (String beanName : getCandidateBeanNames()) {
 			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
+				// 获取这些beanName对应的bean类型，并获取指定类型
 				processCandidateBean(beanName);
 			}
 		}
@@ -216,6 +209,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	}
 
 	/**
+	 * 获取容器中的所有bean对应的name
+	 *
 	 * Determine the names of candidate beans in the application context.
 	 * @since 5.1
 	 * @see #setDetectHandlerMethodsInAncestorContexts
@@ -255,16 +250,19 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	}
 
 	/**
+	 * 监测beanName对应的bean
 	 * Look for handler methods in the specified handler bean.
 	 * @param handler either a bean name or an actual handler instance
 	 * @see #getMappingForMethod
 	 */
 	protected void detectHandlerMethods(Object handler) {
+		// 获取beanName对应的bean类型
 		Class<?> handlerType = (handler instanceof String ?
 				obtainApplicationContext().getType((String) handler) : handler.getClass());
 
 		if (handlerType != null) {
 			Class<?> userType = ClassUtils.getUserClass(handlerType);
+			// 获取当前controller类的方法和RequestMappingInfo的对应关系
 			Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
 					(MethodIntrospector.MetadataLookup<T>) method -> {
 						try {
@@ -278,6 +276,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			if (logger.isTraceEnabled()) {
 				logger.trace(formatMappings(userType, methods));
 			}
+			// 将方法和RequestMappingInfo注册
 			methods.forEach((method, mapping) -> {
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
 				registerHandlerMethod(handler, invocableMethod, mapping);
@@ -355,11 +354,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 */
 	@Override
 	protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
+		// 解析请求的url路径
 		String lookupPath = getUrlPathHelper().getLookupPathForRequest(request);
 		request.setAttribute(LOOKUP_PATH, lookupPath);
 		this.mappingRegistry.acquireReadLock();
 		try {
+			// 通过url路径获取对应的方法
 			HandlerMethod handlerMethod = lookupHandlerMethod(lookupPath, request);
+			// 从方法对象中取出对应的beanName和spring IOC容器，将方法和对应的bean封装到HandlerMethod中
 			return (handlerMethod != null ? handlerMethod.createWithResolvedBean() : null);
 		}
 		finally {
@@ -379,6 +381,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	@Nullable
 	protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
 		List<Match> matches = new ArrayList<>();
+		// 通过url从urlLookup中获取对应的RequestMappingInfo
 		List<T> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
 		if (directPathMatches != null) {
 			addMatchingMappings(directPathMatches, matches, request);
@@ -587,10 +590,12 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 		public void register(T mapping, Object handler, Method method) {
 			this.readWriteLock.writeLock().lock();
 			try {
+				// 建立RequestMappingInfo和method的映射关系
 				HandlerMethod handlerMethod = createHandlerMethod(handler, method);
 				validateMethodMapping(handlerMethod, mapping);
 				this.mappingLookup.put(mapping, handlerMethod);
 
+				// 建立url和RequestMappingInfo的映射关系
 				List<String> directUrls = getDirectUrls(mapping);
 				for (String url : directUrls) {
 					this.urlLookup.add(url, mapping);

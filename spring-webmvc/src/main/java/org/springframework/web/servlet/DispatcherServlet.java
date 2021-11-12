@@ -16,29 +16,8 @@
 
 package org.springframework.web.servlet;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.servlet.DispatcherType;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -63,6 +42,15 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.util.NestedServletException;
 import org.springframework.web.util.WebUtils;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Central dispatcher for HTTP request handlers/controllers, e.g. for web UI controllers
@@ -292,7 +280,9 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 	}
 
-	/** Detect all HandlerMappings or just expect "handlerMapping" bean?. */
+	/** Detect all HandlerMappings or just expect "handlerMapping" bean?.
+	 * 监测所有的HandlerMappings或者是
+	 * */
 	private boolean detectAllHandlerMappings = true;
 
 	/** Detect all HandlerAdapters or just expect "handlerAdapter" bean?. */
@@ -499,14 +489,23 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
+		//文件上传解析，如果请求类型是multipart将通过MultipartResolver进行文件上传解析
 		initMultipartResolver(context);
+		//本地化解析
 		initLocaleResolver(context);
+		//主题解析
 		initThemeResolver(context);
+		//通过HandlerMapping，将请求映射到处理器
 		initHandlerMappings(context);
+		//通过HandlerAdapter支持多种类型的处理器，将请求与映射到的method做一个适配
 		initHandlerAdapters(context);
+		//如果执行过程中遇到异常，将交给HandlerExceptionResolver来解析
 		initHandlerExceptionResolvers(context);
+		//解析请求到视图名
 		initRequestToViewNameTranslator(context);
+		//通过viewResolver解析逻辑视图到具体视图实现
 		initViewResolvers(context);
+		//flash映射管理器in
 		initFlashMapManager(context);
 	}
 
@@ -592,18 +591,22 @@ public class DispatcherServlet extends FrameworkServlet {
 	private void initHandlerMappings(ApplicationContext context) {
 		this.handlerMappings = null;
 
+		// detectAllHandlerMappings默认为true，找到所有的HandlerMappings类型的bean
 		if (this.detectAllHandlerMappings) {
 			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
+			// 从传入的spring容器和父容器中找到所有HandlerMappings类型的bean
 			Map<String, HandlerMapping> matchingBeans =
 					BeanFactoryUtils.beansOfTypeIncludingAncestors(context, HandlerMapping.class, true, false);
 			if (!matchingBeans.isEmpty()) {
 				this.handlerMappings = new ArrayList<>(matchingBeans.values());
 				// We keep HandlerMappings in sorted order.
+				// 对handlerMappings进行排序
 				AnnotationAwareOrderComparator.sort(this.handlerMappings);
 			}
 		}
 		else {
 			try {
+				// 从当前spring容器中获取bean，名字和类型都需要匹配，beanName=handlerMapping，beanType=HandlerMapping.class
 				HandlerMapping hm = context.getBean(HANDLER_MAPPING_BEAN_NAME, HandlerMapping.class);
 				this.handlerMappings = Collections.singletonList(hm);
 			}
@@ -615,6 +618,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		// Ensure we have at least one HandlerMapping, by registering
 		// a default HandlerMapping if no other mappings are found.
 		if (this.handlerMappings == null) {
+			// 创建默认的HandlerMapping
 			this.handlerMappings = getDefaultStrategies(context, HandlerMapping.class);
 			if (logger.isTraceEnabled()) {
 				logger.trace("No HandlerMappings declared for servlet '" + getServletName() +
@@ -986,6 +990,8 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 * 是整个spring mvc的总体入口和出口
+	 *
 	 * Process the actual dispatching to the handler.
 	 * <p>The handler will be obtained by applying the servlet's HandlerMappings in order.
 	 * The HandlerAdapter will be obtained by querying the servlet's installed HandlerAdapters
@@ -1012,6 +1018,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				multipartRequestParsed = (processedRequest != request);
 
 				// Determine handler for the current request.
+				// 1.调用handlerMapping获取handlerChain
 				mappedHandler = getHandler(processedRequest);
 				if (mappedHandler == null) {
 					noHandlerFound(processedRequest, response);
@@ -1019,6 +1026,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				}
 
 				// Determine handler adapter for the current request.
+				// 2.获取支持该handler解析的HandlerAdapter
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
 				// Process last-modified header, if supported by the handler.
@@ -1031,18 +1039,24 @@ public class DispatcherServlet extends FrameworkServlet {
 					}
 				}
 
+				// 执行HandlerInterceptor方法拦截器的preHandle方法，
+				// 如果拦截器返回为false时，直接返回，不对方法进行任何操作
 				if (!mappedHandler.applyPreHandle(processedRequest, response)) {
 					return;
 				}
 
 				// Actually invoke the handler.
+				// 3.使用HandlerAdapter完成handler处理
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}
 
+				// 4.视图处理(页面渲染)
 				applyDefaultViewName(processedRequest, mv);
+
+				// 视图渲染完成后，执行HandlerInterceptor方法拦截器的PostHandle方法，操控ModelAndView的值
 				mappedHandler.applyPostHandle(processedRequest, response, mv);
 			}
 			catch (Exception ex) {

@@ -71,7 +71,7 @@ public class DeferredResultMethodReturnValueHandler implements HandlerMethodRetu
 			// Should not happen...
 			throw new IllegalStateException("Unexpected return value type: " + returnValue);
 		}
-
+		// 处理DeferredResult
 		WebAsyncUtils.getAsyncManager(webRequest).startDeferredResultProcessing(result, mavContainer);
 	}
 

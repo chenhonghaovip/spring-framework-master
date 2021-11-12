@@ -407,6 +407,7 @@ public final class WebAsyncManager {
 		Assert.notNull(deferredResult, "DeferredResult must not be null");
 		Assert.state(this.asyncWebRequest != null, "AsyncWebRequest must not be null");
 
+		// 获取设置的超时时间，并设置异步web请求时间为超时时间
 		Long timeout = deferredResult.getTimeoutValue();
 		if (timeout != null) {
 			this.asyncWebRequest.setTimeout(timeout);

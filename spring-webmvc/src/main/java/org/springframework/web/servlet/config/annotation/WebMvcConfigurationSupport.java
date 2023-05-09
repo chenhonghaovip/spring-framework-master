@@ -599,6 +599,7 @@ public class WebMvcConfigurationSupport implements ApplicationContextAware, Serv
 		adapter.setContentNegotiationManager(mvcContentNegotiationManager);
 		adapter.setMessageConverters(getMessageConverters());
 		adapter.setWebBindingInitializer(getConfigurableWebBindingInitializer(mvcConversionService, mvcValidator));
+		// 向适配器中添加自定义的参数解析器，获取所有WebMvcConfigurer中实现的addArgumentResolvers方法中添加的自定义参数解析器
 		adapter.setCustomArgumentResolvers(getArgumentResolvers());
 		adapter.setCustomReturnValueHandlers(getReturnValueHandlers());
 

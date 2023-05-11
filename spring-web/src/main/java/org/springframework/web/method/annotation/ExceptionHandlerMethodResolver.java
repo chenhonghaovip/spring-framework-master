@@ -73,7 +73,9 @@ public class ExceptionHandlerMethodResolver {
 	@SuppressWarnings("unchecked")
 	private List<Class<? extends Throwable>> detectExceptionMappings(Method method) {
 		List<Class<? extends Throwable>> result = new ArrayList<>();
+		// 检测方法上映射的异常类型，，也就是获取对应方法上@ExceptionHandler注解中的value参数值，也就是需要捕获的异常类型
 		detectAnnotationExceptionMappings(method, result);
+		// 如果方法的@ExceptionHandler注解中的value参数值为空，则获取方法参数类型为Throwable的参数的具体类型作为映射的异常类型
 		if (result.isEmpty()) {
 			for (Class<?> paramType : method.getParameterTypes()) {
 				if (Throwable.class.isAssignableFrom(paramType)) {
@@ -94,6 +96,7 @@ public class ExceptionHandlerMethodResolver {
 	}
 
 	private void addExceptionMapping(Class<? extends Throwable> exceptionType, Method method) {
+		// 建立异常类型和处理方法的映射关系，如果同一个异常存在多个处理方法，则提示异常
 		Method oldMethod = this.mappedMethods.put(exceptionType, method);
 		if (oldMethod != null && !oldMethod.equals(method)) {
 			throw new IllegalStateException("Ambiguous @ExceptionHandler method mapped for [" +

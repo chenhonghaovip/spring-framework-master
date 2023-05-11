@@ -137,6 +137,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 		// 判断该异常解释器是否需要对该异常处理
 		if (shouldApplyTo(request, handler)) {
 			prepareResponse(ex, response);
+			// 具体的异常处理策略由各个异常处理器自己实现
 			ModelAndView result = doResolveException(request, response, handler, ex);
 			if (result != null) {
 				// Print debug message when warn logger is not enabled.

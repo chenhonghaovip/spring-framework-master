@@ -243,14 +243,15 @@ public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExce
 
 	@Override
 	public void afterPropertiesSet() {
-		// Do this first, it may add ResponseBodyAdvice beans
 		// 初始化异常处理增强缓存
 		initExceptionHandlerAdviceCache();
 
+		// 判断参数解析器是否为空，为空时添加默认参数解析器和用户自定义参数解析器（通过实现WebMvcConfigurer的addArgumentResolvers()方法设置的参数解析器）
 		if (this.argumentResolvers == null) {
 			List<HandlerMethodArgumentResolver> resolvers = getDefaultArgumentResolvers();
 			this.argumentResolvers = new HandlerMethodArgumentResolverComposite().addResolvers(resolvers);
 		}
+		// 同上，设置返回结果解析器
 		if (this.returnValueHandlers == null) {
 			List<HandlerMethodReturnValueHandler> handlers = getDefaultReturnValueHandlers();
 			this.returnValueHandlers = new HandlerMethodReturnValueHandlerComposite().addHandlers(handlers);
@@ -262,7 +263,7 @@ public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExce
 			return;
 		}
 
-		// 获取被ControllerAdvice注解标注的beanName信息，并对其用@Order进行排序处理
+		// 获取被@ControllerAdvice注解标注的beanName信息，并对其用@Order进行排序处理，标识异常处理类
 		List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
 		AnnotationAwareOrderComparator.sort(adviceBeans);
 
@@ -372,6 +373,7 @@ public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExce
 	protected ModelAndView doResolveHandlerMethodException(HttpServletRequest request,
 														   HttpServletResponse response, @Nullable HandlerMethod handlerMethod, Exception exception) {
 
+		// 获取该
 		ServletInvocableHandlerMethod exceptionHandlerMethod = getExceptionHandlerMethod(handlerMethod, exception);
 		if (exceptionHandlerMethod == null) {
 			return null;

@@ -16,10 +16,6 @@
 
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.CompletionStage;
-import java.util.function.BiFunction;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -29,6 +25,10 @@ import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.context.request.async.WebAsyncUtils;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
+import java.util.function.BiFunction;
 
 /**
  * Handler for return values of type {@link DeferredResult},
@@ -41,6 +41,7 @@ public class DeferredResultMethodReturnValueHandler implements HandlerMethodRetu
 
 	@Override
 	public boolean supportsReturnType(MethodParameter returnType) {
+		// 该返回结果解析器用于解析处理DeferredResult、ListenableFuture、CompletionStage这几种类型的结果
 		Class<?> type = returnType.getParameterType();
 		return (DeferredResult.class.isAssignableFrom(type) ||
 				ListenableFuture.class.isAssignableFrom(type) ||

@@ -16,10 +16,10 @@
 
 package org.springframework.web.context.request.async;
 
-import java.util.function.Consumer;
-
 import org.springframework.lang.Nullable;
 import org.springframework.web.context.request.NativeWebRequest;
+
+import java.util.function.Consumer;
 
 /**
  * Extends {@link NativeWebRequest} with methods for asynchronous request processing.
@@ -30,40 +30,49 @@ import org.springframework.web.context.request.NativeWebRequest;
 public interface AsyncWebRequest extends NativeWebRequest {
 
 	/**
+	 * 设置超时时间
 	 * Set the time required for concurrent handling to complete.
 	 * This property should not be set when concurrent handling is in progress,
 	 * i.e. when {@link #isAsyncStarted()} is {@code true}.
+	 *
 	 * @param timeout amount of time in milliseconds; {@code null} means no
-	 * 	timeout, i.e. rely on the default timeout of the container.
+	 *                timeout, i.e. rely on the default timeout of the container.
 	 */
 	void setTimeout(@Nullable Long timeout);
 
 	/**
+	 * 添加超时处理器
 	 * Add a handler to invoke when concurrent handling has timed out.
 	 */
 	void addTimeoutHandler(Runnable runnable);
 
 	/**
+	 * 添加异常处理器
 	 * Add a handler to invoke when an error occurred while concurrent
 	 * handling of a request.
+	 *
 	 * @since 5.0
 	 */
 	void addErrorHandler(Consumer<Throwable> exceptionHandler);
 
 	/**
+	 * 添加请求处理完成后的处理器
 	 * Add a handler to invoke when request processing completes.
 	 */
 	void addCompletionHandler(Runnable runnable);
 
 	/**
+	 * 开始异步执行
 	 * Mark the start of asynchronous request processing so that when the main
 	 * processing thread exits, the response remains open for further processing
 	 * in another thread.
+	 *
 	 * @throws IllegalStateException if async processing has completed or is not supported
 	 */
 	void startAsync();
 
 	/**
+	 * 判断是否启动了异步处理
 	 * Whether the request is in async mode following a call to {@link #startAsync()}.
 	 * Returns "false" if asynchronous processing never started, has completed,
 	 * or the request was dispatched for further processing.
@@ -77,6 +86,7 @@ public interface AsyncWebRequest extends NativeWebRequest {
 	void dispatch();
 
 	/**
+	 * 判断异步处理是否已经处理完了
 	 * Whether asynchronous processing has completed.
 	 */
 	boolean isAsyncComplete();

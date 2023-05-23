@@ -278,6 +278,7 @@ public class ExceptionHandlerExceptionResolver extends AbstractHandlerMethodExce
 			if (resolver.hasExceptionMappings()) {
 				this.exceptionHandlerAdviceCache.put(adviceBean, resolver);
 			}
+			// 判断当前被ControllerAdvice注解标识的类是否实现了ResponseBodyAdvice接口，如果实现，加入到集合中
 			if (ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
 				this.responseBodyAdvice.add(adviceBean);
 			}

@@ -1051,6 +1051,7 @@ public class DispatcherServlet extends FrameworkServlet {
 				// 3.使用HandlerAdapter完成handler处理
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
+				// 判断当前请求是否为异步请求
 				if (asyncManager.isConcurrentHandlingStarted()) {
 					return;
 				}

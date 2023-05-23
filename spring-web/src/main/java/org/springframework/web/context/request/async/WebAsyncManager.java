@@ -16,18 +16,8 @@
 
 package org.springframework.web.context.request.async;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.RejectedExecutionException;
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.SyncTaskExecutor;
@@ -35,6 +25,15 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.async.DeferredResult.DeferredResultHandler;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * The central class for managing asynchronous request processing, mainly intended
@@ -413,6 +412,7 @@ public final class WebAsyncManager {
 			this.asyncWebRequest.setTimeout(timeout);
 		}
 
+		// 将在代码中的超时事件处理器、错误处理器和完成处理器加入到拦截器链中
 		List<DeferredResultProcessingInterceptor> interceptors = new ArrayList<>();
 		interceptors.add(deferredResult.getInterceptor());
 		interceptors.addAll(this.deferredResultInterceptors.values());
@@ -420,6 +420,7 @@ public final class WebAsyncManager {
 
 		final DeferredResultInterceptorChain interceptorChain = new DeferredResultInterceptorChain(interceptors);
 
+		// 设置asyncWebRequest的超时处理器
 		this.asyncWebRequest.addTimeoutHandler(() -> {
 			try {
 				interceptorChain.triggerAfterTimeout(this.asyncWebRequest, deferredResult);
@@ -429,6 +430,7 @@ public final class WebAsyncManager {
 			}
 		});
 
+		// 设置asyncWebRequest的异常处理器
 		this.asyncWebRequest.addErrorHandler(ex -> {
 			try {
 				if (!interceptorChain.triggerAfterError(this.asyncWebRequest, deferredResult, ex)) {
@@ -441,14 +443,18 @@ public final class WebAsyncManager {
 			}
 		});
 
+		// 设置asyncWebRequest的完成处理器
 		this.asyncWebRequest.addCompletionHandler(()
 				-> interceptorChain.triggerAfterCompletion(this.asyncWebRequest, deferredResult));
 
 		interceptorChain.applyBeforeConcurrentHandling(this.asyncWebRequest, deferredResult);
+
+		// 开始进行异步请求
 		startAsyncProcessing(processingContext);
 
 		try {
 			interceptorChain.applyPreProcess(this.asyncWebRequest, deferredResult);
+			// 设置返回deferredResult的结果处理器,当代码中调用setResult方法时，会触发该处理器
 			deferredResult.setResultHandler(result -> {
 				result = interceptorChain.applyPostProcess(this.asyncWebRequest, deferredResult, result);
 				setConcurrentResultAndDispatch(result);

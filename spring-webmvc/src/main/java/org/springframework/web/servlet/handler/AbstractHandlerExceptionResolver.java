@@ -169,9 +169,11 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 	 */
 	protected boolean shouldApplyTo(HttpServletRequest request, @Nullable Object handler) {
 		if (handler != null) {
+			// 判断当前handler是否需要用该处理器处理
 			if (this.mappedHandlers != null && this.mappedHandlers.contains(handler)) {
 				return true;
 			}
+			// 判断当前handler是否为指定类型的实例
 			if (this.mappedHandlerClasses != null) {
 				for (Class<?> handlerClass : this.mappedHandlerClasses) {
 					if (handlerClass.isInstance(handler)) {
@@ -181,6 +183,7 @@ public abstract class AbstractHandlerExceptionResolver implements HandlerExcepti
 			}
 		}
 		// Else only apply if there are no explicit handler mappings.
+		// 如果没有设置，则默认为需要进行处理
 		return (this.mappedHandlers == null && this.mappedHandlerClasses == null);
 	}
 

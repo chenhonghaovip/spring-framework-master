@@ -16,24 +16,6 @@
 
 package org.springframework.web.reactive.result.method;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import reactor.core.publisher.Mono;
-
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.MethodIntrospector;
@@ -47,6 +29,14 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.handler.AbstractHandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Abstract base class for {@link HandlerMapping} implementations that define
@@ -171,6 +161,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	 * @see #handlerMethodsInitialized(Map)
 	 */
 	protected void initHandlerMethods() {
+		// 获取IOC容器中全部的bean
 		String[] beanNames = obtainApplicationContext().getBeanNamesForType(Object.class);
 
 		for (String beanName : beanNames) {
@@ -185,7 +176,10 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 						logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 					}
 				}
+				// 判断当前bean是否为处理器类型
+				// eg:bean中是否包含注解Controller或者RequestMapping
 				if (beanType != null && isHandler(beanType)) {
+					// 检测处理器中的方法
 					detectHandlerMethods(beanName);
 				}
 			}
@@ -203,6 +197,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 		if (handlerType != null) {
 			final Class<?> userType = ClassUtils.getUserClass(handlerType);
+			// 解析当前类中的方法，并且建立方法和RequestMappingInfo的映射关系
 			Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
 					(MethodIntrospector.MetadataLookup<T>) method -> getMappingForMethod(method, userType));
 			if (logger.isTraceEnabled()) {

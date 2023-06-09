@@ -1,16 +1,16 @@
 package test.config;
 
-import org.apache.ibatis.session.SqlSessionFactory;
+
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.support.TransactionTemplate;
 import test.aspect.MyApplicationListener;
 import test.aspect.MyTestApplicationListener;
 import test.aspect.TestAspect;
@@ -25,9 +25,8 @@ import javax.sql.DataSource;
  * @author chenhonghao
  * @date 2020-03-20 15:51
  */
-@EnableAsync
-@Import({UserDao.class,InterceptorRegistrar.class})
-@EnableTransactionManagement
+//@EnableAsync
+//@Import({UserDao.class,InterceptorRegistrar.class})
 @MapperScan(value = {"test.mapper"})
 @EnableAspectJAutoProxy
 @Configuration
@@ -99,23 +98,10 @@ public class AOPConfig {
 		return new SqlSessionTemplate(masterSqlSessionFactory());
 	}
 
-	@Bean
-	public TransactionTemplate transactionTemplate(DataSourceTransactionManager dataSourceTransactionManager){
-		return new TransactionTemplate(dataSourceTransactionManager);
-	}
-
-	@Bean
-	public AsyncTask asyncTask(){
-    	return new AsyncTask();
-	}
-
-	@Configuration
-	static class Test{
-		@Bean
-		public AsyncTask asyncTask(){
-			return new AsyncTask();
-		}
-	}
+//	@Bean
+//	public TransactionTemplate transactionTemplate(DataSourceTransactionManager dataSourceTransactionManager){
+//		return new TransactionTemplate(dataSourceTransactionManager);
+//	}
 
 
 }

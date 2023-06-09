@@ -45,7 +45,7 @@ import java.util.Set;
  *
  * @author Hunter Presnall
  * @author Eduardo Macarron
- * 
+ *
  * @see MapperFactoryBean
  * @since 1.2.0
  */
@@ -178,8 +178,10 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
    */
   @Override
   public Set<BeanDefinitionHolder> doScan(String... basePackages) {
+    // 扫描指定包路径，创建对应的Mapper的BeanDefinition
     Set<BeanDefinitionHolder> beanDefinitions = super.doScan(basePackages);
 
+    // 如果BeanDefinition不为空，对BeanDefinition进行处理
     if (beanDefinitions.isEmpty()) {
       LOGGER.warn(() -> "No MyBatis mapper was found in '" + Arrays.toString(basePackages)
           + "' package. Please check your configuration.");
@@ -192,6 +194,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
   private void processBeanDefinitions(Set<BeanDefinitionHolder> beanDefinitions) {
     GenericBeanDefinition definition;
+    // 由于扫描出的Mapper为接口，所以需要对Mapper进行处理
     for (BeanDefinitionHolder holder : beanDefinitions) {
       definition = (GenericBeanDefinition) holder.getBeanDefinition();
       String beanClassName = definition.getBeanClassName();
@@ -200,11 +203,13 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
       // the mapper interface is the original class of the bean
       // but, the actual class of the bean is MapperFactoryBean
+      // 核心：修改BeanDefinition的类为MapperFactoryBean，且构造器方式注入Mapper本身类型
       definition.getConstructorArgumentValues().addGenericArgumentValue(beanClassName); // issue #59
       definition.setBeanClass(this.mapperFactoryBeanClass);
 
       definition.getPropertyValues().add("addToConfig", this.addToConfig);
 
+      // 为其设置sqlSessionFactory和sqlSessionTemplate
       boolean explicitFactoryUsed = false;
       if (StringUtils.hasText(this.sqlSessionFactoryBeanName)) {
         definition.getPropertyValues().add("sqlSessionFactory",

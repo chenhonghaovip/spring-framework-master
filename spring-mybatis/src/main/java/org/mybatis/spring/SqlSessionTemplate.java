@@ -120,6 +120,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
     this.sqlSessionFactory = sqlSessionFactory;
     this.executorType = executorType;
     this.exceptionTranslator = exceptionTranslator;
+    // 创建SqlSessionTemplate对象的同时会创建代理对象，对SqlSession进行代理
     this.sqlSessionProxy = (SqlSession) newProxyInstance(SqlSessionFactory.class.getClassLoader(),
         new Class[] { SqlSession.class }, new SqlSessionInterceptor());
   }
@@ -301,6 +302,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
    */
   @Override
   public <T> T getMapper(Class<T> type) {
+    // 获取到sqlSessionFactory的配置信息，然后获取对应的Mapper
     return getConfiguration().getMapper(type, this);
   }
 

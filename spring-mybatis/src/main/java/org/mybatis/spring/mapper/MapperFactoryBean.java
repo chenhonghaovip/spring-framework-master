@@ -79,7 +79,7 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
       try {
         configuration.addMapper(this.mapperInterface);
       } catch (Exception e) {
-        logger.error("Error while adding the mapper '" + this.mapperInterface + "' to configuration.", e);
+//        logger.error("Error while adding the mapper '" + this.mapperInterface + "' to configuration.", e);
         throw new IllegalArgumentException(e);
       } finally {
         ErrorContext.instance().reset();
@@ -88,6 +88,7 @@ public class MapperFactoryBean<T> extends SqlSessionDaoSupport implements Factor
   }
 
   /**
+   * 获取真实的Mapper
    * {@inheritDoc}
    */
   @Override

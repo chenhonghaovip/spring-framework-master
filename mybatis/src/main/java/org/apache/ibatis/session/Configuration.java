@@ -547,6 +547,13 @@ public class Configuration {
 		return newExecutor(transaction, defaultExecutorType);
 	}
 
+	/**
+	 * 生成指定事务的执行器
+	 *
+	 * @param transaction  事务
+	 * @param executorType 执行类型
+	 * @return
+	 */
 	public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
 		executorType = executorType == null ? defaultExecutorType : executorType;
 		executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
@@ -561,6 +568,7 @@ public class Configuration {
 		if (cacheEnabled) {
 			executor = new CachingExecutor(executor);
 		}
+		// 对executor执行器进行处理，判断是否需要代理处理（如果设置了数据库拦截器，会被动态代理）
 		executor = (Executor) interceptorChain.pluginAll(executor);
 		return executor;
 	}

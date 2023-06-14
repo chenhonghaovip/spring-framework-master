@@ -26,8 +26,16 @@ public class InterceptorChain {
 
 	private final List<Interceptor> interceptors = new ArrayList<Interceptor>();
 
+	/**
+	 * @param target 原始执行器
+	 * @return 被各个拦截器处理过的执行器
+	 * @see Plugin#wrap(Object, Interceptor)
+	 * <p>
+	 * 此处会调用各个数据库拦截器的plugin方法对执行器进行处理（此处拦截器即为在sqlSessionFactoryBean.setPlugins()中配置的拦截器）
+	 */
 	public Object pluginAll(Object target) {
 		for (Interceptor interceptor : interceptors) {
+			// 各个拦截器会执行Plugin.wrap(target, this)方法，对执行器进行代理处理，InvocationHandler类型为Plugin.class
 			target = interceptor.plugin(target);
 		}
 		return target;

@@ -338,7 +338,7 @@ public class MapperScannerConfigurer
       processPropertyPlaceHolders();
     }
 
-    // 创建扫描对象
+    // 创建扫描对象，并扫描指定路径下的Mapper接口
     ClassPathMapperScanner scanner = new ClassPathMapperScanner(registry);
     scanner.setAddToConfig(this.addToConfig);
     scanner.setAnnotationClass(this.annotationClass);

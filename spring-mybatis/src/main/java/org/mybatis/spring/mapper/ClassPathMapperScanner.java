@@ -186,6 +186,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
       LOGGER.warn(() -> "No MyBatis mapper was found in '" + Arrays.toString(basePackages)
           + "' package. Please check your configuration.");
     } else {
+      // 对beanDefinition定义进行修改
       processBeanDefinitions(beanDefinitions);
     }
 
@@ -209,7 +210,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
       definition.getPropertyValues().add("addToConfig", this.addToConfig);
 
-      // 为其设置sqlSessionFactory和sqlSessionTemplate
+      // 为其设置sqlSessionFactory和sqlSessionTemplate，如果在MapperScan中设置了的话，否则为空，会进行默认的注入
       boolean explicitFactoryUsed = false;
       if (StringUtils.hasText(this.sqlSessionFactoryBeanName)) {
         definition.getPropertyValues().add("sqlSessionFactory",

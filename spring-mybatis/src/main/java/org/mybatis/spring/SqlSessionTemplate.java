@@ -120,7 +120,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
     this.sqlSessionFactory = sqlSessionFactory;
     this.executorType = executorType;
     this.exceptionTranslator = exceptionTranslator;
-    // 创建SqlSessionTemplate对象的同时会创建代理对象，对SqlSession进行代理
+    // 创建SqlSessionTemplate对象的同时会创建代理对象，对SqlSession进行代理，被代理对象为SqlSession，增强器为SqlSessionInterceptor
     this.sqlSessionProxy = (SqlSession) newProxyInstance(SqlSessionFactory.class.getClassLoader(),
         new Class[] { SqlSession.class }, new SqlSessionInterceptor());
   }
@@ -150,6 +150,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
    */
   @Override
   public <T> T selectOne(String statement, Object parameter) {
+    // 由于sqlSessionProxy是被代理后的对象，所以会执行到SqlSessionInterceptor.invoke()方法中
     return this.sqlSessionProxy.selectOne(statement, parameter);
   }
 
@@ -415,9 +416,11 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
   private class SqlSessionInterceptor implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+      // 获取本次的执行对象，有当前Mapper的sqlSessionFactory生成，实际类型为DefaultSqlSession
       SqlSession sqlSession = getSqlSession(SqlSessionTemplate.this.sqlSessionFactory,
           SqlSessionTemplate.this.executorType, SqlSessionTemplate.this.exceptionTranslator);
       try {
+        // 对method进行执行处理，交由sqlSession去执行，在
         Object result = method.invoke(sqlSession, args);
         if (!isSqlSessionTransactional(sqlSession, SqlSessionTemplate.this.sqlSessionFactory)) {
           // force commit even on non-dirty sessions because some databases require

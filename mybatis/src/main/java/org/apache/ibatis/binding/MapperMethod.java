@@ -54,6 +54,7 @@ public class MapperMethod {
 
 	public Object execute(SqlSession sqlSession, Object[] args) {
 		Object result;
+		// 判断请求类型并执行，最终会请求到sqlSession中去执行
 		switch (command.getType()) {
 			case INSERT: {
 				Object param = method.convertArgsToSqlCommandParam(args);

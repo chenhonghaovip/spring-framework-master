@@ -55,6 +55,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 		} catch (Throwable t) {
 			throw ExceptionUtil.unwrapThrowable(t);
 		}
+		// 将method包装为MapperMethod（包含Configuration、mapperInterface、method），并且调用执行当前方法
 		final MapperMethod mapperMethod = cachedMapperMethod(method);
 		return mapperMethod.execute(sqlSession, args);
 	}
@@ -85,6 +86,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 	}
 
 	/**
+	 * 用来过滤Mapper接口中的default方法的
 	 * Backport of java.lang.reflect.Method#isDefault()
 	 */
 	private boolean isDefaultMethod(Method method) {

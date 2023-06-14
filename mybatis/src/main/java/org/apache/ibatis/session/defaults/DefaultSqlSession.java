@@ -140,6 +140,7 @@ public class DefaultSqlSession implements SqlSession {
 	@Override
 	public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
 		try {
+			// 调用executor执行器执行指定statement
 			MappedStatement ms = configuration.getMappedStatement(statement);
 			return executor.query(ms, wrapCollection(parameter), rowBounds, Executor.NO_RESULT_HANDLER);
 		} catch (Exception e) {

@@ -487,6 +487,7 @@ public class SqlSessionFactoryBean
     state((configuration == null && configLocation == null) || !(configuration != null && configLocation != null),
         "Property 'configuration' and 'configLocation' can not specified with together");
 
+    // 构建sqlSessionFactory
     this.sqlSessionFactory = buildSqlSessionFactory();
   }
 
@@ -505,6 +506,7 @@ public class SqlSessionFactoryBean
 
     final Configuration targetConfiguration;
 
+    // 判断是否在实例化SqlSessionFactoryBean是配置了Configuration,否则默认初始化创创建Configuration
     XMLConfigBuilder xmlConfigBuilder = null;
     if (this.configuration != null) {
       targetConfiguration = this.configuration;
@@ -542,6 +544,7 @@ public class SqlSessionFactoryBean
 
     if (!isEmpty(this.plugins)) {
       Stream.of(this.plugins).forEach(plugin -> {
+        // 将sql拦截器加入到当前配置中，并且最终会放到SqlSessionFactory中
         targetConfiguration.addInterceptor(plugin);
         LOGGER.debug(() -> "Registered plugin: '" + plugin + "'");
       });
@@ -596,6 +599,7 @@ public class SqlSessionFactoryBean
         this.transactionFactory == null ? new SpringManagedTransactionFactory() : this.transactionFactory,
         this.dataSource));
 
+    // 判断是否存在mapperLocations配置，解析处理
     if (this.mapperLocations != null) {
       if (this.mapperLocations.length == 0) {
         LOGGER.warn(() -> "Property 'mapperLocations' was specified but matching resources are not found.");
@@ -620,10 +624,12 @@ public class SqlSessionFactoryBean
       LOGGER.debug(() -> "Property 'mapperLocations' was not specified.");
     }
 
+    // 创建DefaultSqlSessionFactory实例，里面包含配置的Configuration信息
     return this.sqlSessionFactoryBuilder.build(targetConfiguration);
   }
 
   /**
+   * 该方法用于获取SqlSessionFactory，返回的是DefaultSqlSessionFactory实例
    * {@inheritDoc}
    */
   @Override

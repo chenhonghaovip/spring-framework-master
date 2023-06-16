@@ -416,7 +416,7 @@ public class SqlSessionTemplate implements SqlSession, DisposableBean {
   private class SqlSessionInterceptor implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-      // 获取本次的执行对象，有当前Mapper的sqlSessionFactory生成，实际类型为DefaultSqlSession
+      // 获取本次的执行对象，有当前Mapper的sqlSessionFactory生成，实际类型为DefaultSqlSession，同时会生成执行该方法的执行器并对其进行可能的动态代理
       SqlSession sqlSession = getSqlSession(SqlSessionTemplate.this.sqlSessionFactory,
           SqlSessionTemplate.this.executorType, SqlSessionTemplate.this.exceptionTranslator);
       try {

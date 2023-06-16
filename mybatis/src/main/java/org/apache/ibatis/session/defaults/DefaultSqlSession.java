@@ -31,6 +31,7 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -137,10 +138,13 @@ public class DefaultSqlSession implements SqlSession {
 		return this.selectList(statement, parameter, RowBounds.DEFAULT);
 	}
 
+	/**
+	 * @see org.apache.ibatis.plugin.Plugin#invoke(Object, Method, Object[])
+	 */
 	@Override
 	public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
 		try {
-			// 调用executor执行器执行指定statement
+			// 调用executor执行器执行指定statement,executor可能会被代理(增强类型为Plugin)
 			MappedStatement ms = configuration.getMappedStatement(statement);
 			return executor.query(ms, wrapCollection(parameter), rowBounds, Executor.NO_RESULT_HANDLER);
 		} catch (Exception e) {

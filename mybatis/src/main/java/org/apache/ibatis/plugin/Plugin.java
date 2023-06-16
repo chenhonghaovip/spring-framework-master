@@ -15,6 +15,11 @@
  */
 package org.apache.ibatis.plugin;
 
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.reflection.ExceptionUtil;
+import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -22,8 +27,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
  * @author Clinton Begin
@@ -53,9 +56,13 @@ public class Plugin implements InvocationHandler {
 		return target;
 	}
 
+	/**
+	 * @see org.apache.ibatis.executor.BaseExecutor#query(MappedStatement, Object, RowBounds, ResultHandler)
+	 */
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		try {
+			// 在此处获取到数据库拦截器，并进行执行处理，由于Plugin可能存在多层代理现象，所以target可能还是Plugin动态代理对象，继续执行，直到获取到原始的执行器
 			Set<Method> methods = signatureMap.get(method.getDeclaringClass());
 			if (methods != null && methods.contains(method)) {
 				return interceptor.intercept(new Invocation(target, method, args));

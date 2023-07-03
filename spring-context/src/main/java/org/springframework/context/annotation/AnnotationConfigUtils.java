@@ -148,6 +148,7 @@ public abstract class AnnotationConfigUtils {
 	public static Set<BeanDefinitionHolder> registerAnnotationConfigProcessors(
 			BeanDefinitionRegistry registry, @Nullable Object source) {
 
+		// 获取beanFactory
 		DefaultListableBeanFactory beanFactory = unwrapDefaultListableBeanFactory(registry);
 		if (beanFactory != null) {
 			if (!(beanFactory.getDependencyComparator() instanceof AnnotationAwareOrderComparator)) {
@@ -173,6 +174,7 @@ public abstract class AnnotationConfigUtils {
 
 		// org.springframework.context.annotation.internalAutowiredAnnotationProcessor
 		// AutowiredAnnotationBeanPostProcessor是用来处理@Autowired注解和@Value注解的
+		// 向IOC容器中注册AutowiredAnnotationBeanPostProcessor定义
 		if (!registry.containsBeanDefinition(AUTOWIRED_ANNOTATION_PROCESSOR_BEAN_NAME)) {
 			RootBeanDefinition def = new RootBeanDefinition(AutowiredAnnotationBeanPostProcessor.class);
 			def.setSource(source);

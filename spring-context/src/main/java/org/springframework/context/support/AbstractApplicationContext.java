@@ -612,6 +612,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		getEnvironment().validateRequiredProperties();
 
 		// Store pre-refresh ApplicationListeners...
+		// 由于之前可能通过其他方式向IOC中提前置入部分ApplicationListener，但是没有向IOC中注入，本身并不是一个Bean实例，所以标记为提前暴露的监听器
 		if (this.earlyApplicationListeners == null) {
 			this.earlyApplicationListeners = new LinkedHashSet<>(this.applicationListeners);
 		}

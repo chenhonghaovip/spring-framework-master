@@ -500,7 +500,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 
 			// Prepare the bean factory for use in this context.
-			// 配置标准的beanFactory，设置ClassLoader，设置SpEL表达式解析器等
+			// 配置标准的beanFactory，设置ClassLoader，设置SpEL表达式解析器，添加BeanPostProcessor等
 			prepareBeanFactory(beanFactory);
 
 			try {
@@ -517,7 +517,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
-				// 实例化和注册beanFactory中扩展了BeanPostProcessor的bean。
+				// 实例化和注册beanFactory中扩展了BeanPostProcessor的bean。将所有的BeanPostProcessor放入到IOC的beanPostProcessors中存储
 				// 例如：
 				// AutowiredAnnotationBeanPostProcessor(处理被@Autowired注解修饰的bean并注入)
 				// RequiredAnnotationBeanPostProcessor(处理被@Required注解修饰的方法)
@@ -690,6 +690,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		beanFactory.registerResolvableDependency(ApplicationContext.class, this);
 
 		// Register early post-processor for detecting inner beans as ApplicationListeners.
+		// 添加BeanPostProcessor，用于识别ApplicationListener
 		beanFactory.addBeanPostProcessor(new ApplicationListenerDetector(this));
 
 		// Detect a LoadTimeWeaver and prepare for weaving, if found.

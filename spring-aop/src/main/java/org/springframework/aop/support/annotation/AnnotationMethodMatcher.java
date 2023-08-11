@@ -16,14 +16,14 @@
 
 package org.springframework.aop.support.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-
 import org.springframework.aop.support.AopUtils;
 import org.springframework.aop.support.StaticMethodMatcher;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.util.Assert;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 /**
  * Simple MethodMatcher that looks for a specific Java 5 annotation
@@ -31,8 +31,8 @@ import org.springframework.util.Assert;
  * interface, if any, and the corresponding method on the target class).
  *
  * @author Juergen Hoeller
- * @since 2.0
  * @see AnnotationMatchingPointcut
+ * @since 2.0
  */
 public class AnnotationMethodMatcher extends StaticMethodMatcher {
 
@@ -65,7 +65,13 @@ public class AnnotationMethodMatcher extends StaticMethodMatcher {
 	}
 
 
-
+	/**
+	 * 判断当前方法是否匹配当前匹配器规则
+	 *
+	 * @param method      the candidate method
+	 * @param targetClass the target class
+	 * @return
+	 */
 	@Override
 	public boolean matches(Method method, Class<?> targetClass) {
 		if (matchesMethod(method)) {

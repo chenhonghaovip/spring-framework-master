@@ -794,14 +794,15 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void initApplicationEventMulticaster() {
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
+		// 判断当前IOC容器中是否有该beanName的实例或者定义，如果存在，获取容器中的事件分派器
+		// 如果不存在，则创建默认的实例SimpleApplicationEventMulticaster，并且注入到IOC容器中
 		if (beanFactory.containsLocalBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME)) {
 			this.applicationEventMulticaster =
 					beanFactory.getBean(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
 			if (logger.isTraceEnabled()) {
 				logger.trace("Using ApplicationEventMulticaster [" + this.applicationEventMulticaster + "]");
 			}
-		}
-		else {
+		} else {
 			this.applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
 			beanFactory.registerSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, this.applicationEventMulticaster);
 			if (logger.isTraceEnabled()) {
@@ -855,14 +856,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	protected void registerListeners() {
 		// Register statically specified listeners first
 		// 这一步和手动注册BeanDefinitionRegistryPostProcessor一样，
-		// 可以自己通过set手动注册监听器  然后是最新执行的（显然此处我们无自己set）
+		// 可以自己通过set手动注册监听器  然后是最新执行的，会将SpringBoot通过spring.factories中配置的加载
 		for (ApplicationListener<?> listener : getApplicationListeners()) {
 			getApplicationEventMulticaster().addApplicationListener(listener);
 		}
 
 		// Do not initialize FactoryBeans here: We need to leave all regular beans
 		// uninitialized to let post-processors apply to them!
-		// 取到容器里面的所有的监听器的名称，绑定到广播器  后面会广播出去这些事件的
+		// 取到容器里面的所有的监听器的名称，绑定到广播器  后面会广播出去这些事件的（如果当前Bean同时实现了BeanFactoryPostProcessor，则提前实例化）
 		// 同时提醒大伙注意：此处并没有说到ApplicationListenerDetector这个东东，下文会分解
 		String[] listenerBeanNames = getBeanNamesForType(ApplicationListener.class, true, false);
 		for (String listenerBeanName : listenerBeanNames) {
